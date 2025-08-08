@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IEEE - VBIT SB | Registration</title>
+<link rel="shortcut icon" href="Assets/images/FinalLogo1.png" type="image/x-icon" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="Assets/styles/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div id="preloader">
+<img src="Assets/images/FinalLogo1.png" alt="Loading Logo" id="preloader-logo">
+<div class="spinner"></div>
+</div>
+
+<div id="content" style="visibility: hidden; opacity: 0; transition: opacity 1s ease;">
+    <header class="container">
+      <img class="logo rounded mx-auto d-block" src="Assets/images/FinalLogo1.png" alt="IEEE - VBIT SB Logo" />
+    </header>
+
+    <div class="container">
+        <div id="main-content">
+            <!-- Event details will be loaded here by the script -->
+        </div>
+        
+        <section id="registration-section" class="about" style="display: none;">
+            <div class="section-header">
+              <h2>REGISTRATION FORM</h2>
+            </div>
+            <form id="public-reg-form">
+              
+              <!-- This div is required by public-script.js to inject the team size dropdown -->
+              <div id="team-size-selector-container" class="form-group" style="display: none;"></div>
+              
+              <!-- This is where the participant fields will be injected -->
+              <div id="registration-form-container"></div>
+
+              <button id="submit-button" class="submit btn1" type="submit">Submit</button>
+            </form>
+        </section>
+    </div>
+
+    <footer class="footer">
+      <div class="row">Designed and Developed by Web Designer | IEEE - VBIT SB</div>
+      <div class="row social-icons">
+        <a target="_blank" href="https://www.facebook.com/ieeevbitsb/"><i class="fa fa-facebook"></i></a>
+        <a target="_blank" href="https://www.instagram.com/ieee_vbitsb/"><i class="fa fa-instagram"></i></a>
+        <a target="_blank" href="https://www.linkedin.com/company/ieee-vbit-sb/"><i class="fa fa-linkedin"></i></a>
+        <a target="_blank" href="https://ieeevbitsb.in/"><i class="fa fa-globe"></i></a>
+      </div>
+    </footer>
+</div>
+
+<!-- Scripts -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="Assets/Scripts/config.js"></script>
+<script src="Assets/Scripts/public-script.js" type="module"></script>
+</body>
+</html>

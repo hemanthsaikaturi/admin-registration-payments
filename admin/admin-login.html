@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | IEEE - VBIT SB</title>
+    <link rel="shortcut icon" href="../Assets/images/FinalLogo1_Black.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="login-page-body">
+    <div class="login-container">
+        <div class="login-box">
+            <img class="logo" src="../Assets/images/FinalLogo1.png" alt="IEEE Logo">
+            <h3>Admin Panel Login</h3>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+            <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="../Assets/Scripts/config.js"></script>
+    <script src="admin-auth.js"></script>
+</body>
+</html>

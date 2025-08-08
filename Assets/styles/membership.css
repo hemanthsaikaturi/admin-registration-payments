@@ -1,0 +1,42 @@
+/* --- MEMBERSHIP BENEFITS SECTION --- */
+.membership-benefits .row1 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px; /* Spacing between cards */
+}
+
+.membership-benefits .column {
+    flex-basis: 320px; /* Base width for each card */
+    flex-grow: 1;
+}
+
+.membership-benefits .card {
+    background: #fff;
+    border: 1px solid #dee2e6; /* Subtle border */
+    border-radius: 12px;
+    padding: 30px;
+    height: 100%; /* Make all cards the same height */
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+}
+
+/* The hover effect from your inspiration screenshot */
+.membership-benefits .card:hover {
+    transform: translateY(-5px);
+    border-color: #00629b;
+    box-shadow: 0 8px 25px rgba(0, 98, 155, 0.1);
+}
+
+.membership-benefits .card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #003e6b; /* Darker IEEE blue */
+    margin-bottom: 15px;
+}
+
+.membership-benefits .card p {
+    font-size: 1rem;
+    color: #495057;
+    line-height: 1.6;
+}

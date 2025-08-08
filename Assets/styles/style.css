@@ -1,0 +1,243 @@
+/* --- GLOBAL & TYPOGRAPHY --- */
+/* =========== NEW/MODIFIED STYLES START =========== */
+html {
+    height: 100%; /* Ensure the html element can be a height reference */
+}
+
+body {
+    min-height: 100%; /* Make body at least as tall as the html element */
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa; /* A light, clean grey background */
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+#content {
+    flex-grow: 1; /* Allows this container to grow and fill available space */
+    display: flex;
+    flex-direction: column; /* Stack its own children (header, container, footer) vertically */
+}
+
+/* This targets the main bootstrap container holding the event details and form */
+#content > .container {
+    flex-grow: 1; /* This is the key: makes the content area expand, pushing the footer down */
+}
+/* =========== NEW/MODIFIED STYLES END =========== */
+
+h2 {
+    font-weight: 600;
+    color: #003e6b; /* Darker IEEE blue */
+}
+
+/* --- HEADER & LOGO --- */
+header.container {
+    padding: 30px 0;
+    text-align: center;
+}
+
+img.logo {
+    max-width: 150px; /* Controls the size of the top logo */
+    height: auto;
+}
+
+/* --- SECTION STYLING --- */
+section.about {
+    background-color: #ffffff;
+    padding: 40px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 40px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.section-header h2 {
+    display: inline-block;
+    position: relative;
+    padding-bottom: 10px;
+    margin-bottom: 0;
+}
+
+/* The underline effect for headers */
+.section-header h2::after {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #00629b; /* IEEE Blue */
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* --- EVENT DETAILS & POSTER --- */
+.main-poster .img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.event-description p {
+    font-size: 1.1rem;
+    color: #555;
+    white-space: pre-wrap; /* This respects the line breaks you enter in the description */
+}
+
+/* --- DYNAMIC REGISTRATION FORM STYLING --- */
+#registration-section {
+    margin-top: -20px; /* Pulls it a bit closer to the event details */
+}
+
+.participant {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.participant-label {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #00629b;
+    margin-bottom: 15px;
+    display: block;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Style for all form inputs and selects */
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    height: calc(1.5em + 1rem + 2px); /* Taller fields */
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #00629b;
+    box-shadow: 0 0 0 0.2rem rgba(0, 98, 155, 0.25);
+    transform: translateY(-2px);
+}
+
+/* Submit Button */
+.submit.btn1 {
+    background-color: #00629b;
+    color: #fff;
+    border: none;
+    border-radius: 50px; /* Pill shape */
+    padding: 12px 40px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: block;
+    margin: 20px auto 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 98, 155, 0.2);
+}
+
+.submit.btn1:hover {
+    background-color: #003e6b;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 62, 107, 0.3);
+}
+
+.submit.btn1:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.registration-closed h1 {
+    text-align: center;
+    color: #888;
+}
+
+/* --- FOOTER STYLING --- */
+.footer {
+    background-color: #343a40;
+    color: #adb5bd;
+    padding: 20px 0;
+    /* margin-top is no longer needed with flexbox */
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;
+}
+
+.footer .row {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.footer .social-icons a {
+    color: #adb5bd;
+    margin: 0 12px;
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.footer .social-icons a:hover {
+    color: #fff;
+}
+
+/* ============== NEW PRELOADER STYLES ============== */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff; /* White background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 1s ease, visibility 1s ease; /* Smooth fade-out */
+}
+
+#preloader .spinner {
+    border: 8px solid #f3f3f3; /* Light grey base */
+    border-top: 8px solid #00629b; /* IEEE Blue for the arc */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 1s linear infinite;
+    position: relative;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+#preloader-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center the logo */
+    width: 80px; /* Adjust size as needed */
+    height: auto;
+    z-index: 2; /* Ensure logo is above the spinner */
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.9;
+    }
+}

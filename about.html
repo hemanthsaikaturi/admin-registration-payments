@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IEEE - VBIT SB | Information</title>
+    <link rel="shortcut icon" href="Assets/images/FinalLogo1.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="Assets/styles/about.css" />
+    <link rel="stylesheet" href="Assets/styles/membership.css" />
+</head>
+
+<body>
+    <header class="fade-in-up"> 
+        <img class="logo rounded mx-auto d-block" src="Assets/images/FinalLogo1.png" alt="IEEE - VBIT SB Logo">
+    </header>
+
+    <div class="content-wrapper">
+        <h1 class="head-text fade-in-up">Registration Successful!</h1> 
+
+        <section class="upcoming-Events fade-in-up"> 
+            <div class="section-header">
+                <h2>PAST EVENTS</h2>
+            </div>
+            <div class="events" id="past-events-grid">
+                <p class="text-center w-100">Loading past events...</p>
+            </div>
+        </section>
+
+        <section class="membership-benefits fade-in-up">
+            <div class="section-header">
+                <h2>MEMBERSHIP BENEFITS</h2>
+            </div>
+            <div class="row1">
+                <div class="column"><div class="card"><h3>Benefit-1</h3><p>Great networking opportunities and community expansion. Career opportunities and Scholarship benefits.</p></div></div>
+                <div class="column"><div class="card"><h3>Benefit-2</h3><p>Access to extensive collection of technical journals, papers and magazines like IEEE Spectrum.</p></div></div>
+                <div class="column"><div class="card"><h3>Benefit-3</h3><p>Exclusive discounts on IEEE Conferences around the globe.</p></div></div>
+            </div>
+            <div class="link">
+                <a href="https://forms.gle/6Nr8huJk898c1fyT7" target="blank" class="submit btn1">Get Membership</a>
+            </div>
+        </section>
+
+        <div class="link fade-in-up">
+            <a href="index.html" class="submit btn1">New Registration</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="row">Designed and Developed by Web Designer | IEEE - VBIT SB</div>
+        <div class="row social-icons">       
+            <a target="_blank" href="https://www.facebook.com/ieeevbitsb/"><i class="fa fa-facebook"></i></a>
+            <a target="_blank" href="https://www.instagram.com/ieee_vbitsb/"><i class="fa fa-instagram"></i></a>
+            <a target="_blank" href="https://www.linkedin.com/company/ieee-vbit-sb/"><i class="fa fa-linkedin"></i></a>
+            <a target="_blank" href="https://ieeevbitsb.in/"><i class="fa fa-globe"></i></a>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="Assets/Scripts/config.js"></script>
+    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const animatedElements = document.querySelectorAll('.fade-in-up');
+            animatedElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('is-visible');
+                }, index * 150); 
+            });
+
+            // --- Firebase Logic for Past Events ---
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            const db = firebase.firestore();
+            const grid = document.getElementById('past-events-grid');
+
+            if(grid){
+                db.collection('pastEvents').orderBy('createdAt', 'desc').get().then(snapshot => {
+                    if (snapshot.empty) {
+                        grid.innerHTML = '<p class="text-center w-100">No past events to display.</p>';
+                        return;
+                    }
+                    grid.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const event = doc.data();
+                        const eventItem = document.createElement('div');
+                        eventItem.className = 'event-item';
+                        eventItem.innerHTML = `
+                            <img class="imgs" src="${event.posterURL}" alt="${event.title}">
+                            <div class="event-info">
+                                <h3>${event.title}</h3>
+                                <p>${event.date}</p>
+                            </div>
+                        `;
+                        grid.appendChild(eventItem);
+                    });
+                }).catch(err => {
+                    console.error("Error fetching past events: ", err);
+                    grid.innerHTML = '<p class="text-center w-100">Could not load past events.</p>';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

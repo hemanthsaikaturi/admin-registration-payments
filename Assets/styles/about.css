@@ -1,0 +1,159 @@
+/* --- GLOBAL & BODY --- */
+body {
+    background-color: #eef2f5;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #495057;
+}
+
+/* --- HEADER & SUCCESS MESSAGE --- */
+header {
+    padding: 30px 0;
+}
+img.logo {
+    max-width: 130px;
+}
+.head-text {
+    font-size: 2.5rem;
+    font-weight: 600;
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 50px;
+}
+
+/* --- SECTION WRAPPER --- */
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+section {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 40px;
+}
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.section-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #003e6b;
+    display: inline-block;
+    position: relative;
+    padding-bottom: 15px;
+}
+.section-header h2::after {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 70px;
+    height: 4px;
+    background: #00629b;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+/* --- PAST EVENTS GRID --- */
+.events {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 30px;
+    text-align: center;
+}
+.events .event-item {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.events .event-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+.events .imgs {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    display: block;
+}
+.events .event-info {
+    padding: 20px 15px;
+}
+.events h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    color: #343a40;
+}
+.events p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* --- BUTTONS & FOOTER --- */
+.link {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+.submit.btn1 {
+    background-color: #00629b;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 45px;
+    font-weight: 500;
+    font-size: 1.1rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+.submit.btn1:hover {
+    color: #fff;
+    background-color: #003e6b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 98, 155, 0.2);
+}
+.footer {
+    background-color: #343a40;
+    color: #adb5bd;
+    padding: 30px 0;
+    text-align: center;
+}
+.footer .row {
+    margin: 5px 0;
+    display: flex;
+    justify-content: center;
+}
+.footer .social-icons a {
+    color: #adb5bd;
+    margin: 0 12px;
+    font-size: 1.5rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+.footer .social-icons a:hover {
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* ============== NEW PAGE LOAD ANIMATION ============== */
+
+/* The starting state of our animated elements: invisible and moved down */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* The final state of our animated elements: fully visible and in their original position */
+.fade-in-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}

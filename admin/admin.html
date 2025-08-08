@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard | IEEE - VBIT SB</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+<link rel="shortcut icon" href="../Assets/images/FinalLogo1_Black.png" type="image/x-icon">
+<link rel="stylesheet" href="admin-style.css" />
+</head>
+<body>
+<div id="loader" class="loader-container">
+<div class="spinner"></div>
+<p>Verifying authentication...</p>
+</div>
+
+<div id="dashboard-content" style="display: none">
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+      
+      <!-- =========== MODIFIED SECTION START =========== -->
+      <a class="navbar-brand" href="admin.html">
+      <!-- =========== MODIFIED SECTION END =========== -->
+        <img src="../Assets/images/FinalLogo1.png" width="30" height="30" class="d-inline-block align-top" alt="IEEE Logo" />
+        IEEE VBIT SB - Admin Dashboard
+      </a>
+      <button id="logout-button" class="btn btn-danger">Logout</button>
+    </div>
+  </nav>
+  
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-12">
+        
+        <!-- SECTION 1: CREATE/EDIT EVENT FORM -->
+        <h2 class="mb-3" id="form-title">Create a New Live Event</h2>
+        <div class="card card-body mb-5">
+          <form id="create-event-form">
+            
+            <!-- Basic Details -->
+            <h5>1. Basic Event Details</h5>
+            <div class="form-row">
+                <div class="form-group col-md-6"><label>Event Name</label><input type="text" id="eventName" class="form-control" required/></div>
+                <div class="form-group col-md-6">
+                    <label>Event Poster</label>
+                    <input type="file" id="eventPoster" class="form-control-file" accept="image/*" />
+                    <div id="current-poster-container" class="mt-2" style="display: none;">
+                        <small>Current Poster:</small><br>
+                        <img id="current-poster-img" src="" alt="Current Poster" style="max-width: 100px; border-radius: 4px;" />
+                        <small class="form-text text-muted">Leave file input empty to keep the current poster.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group"><label>Event Description</label><textarea id="eventDescription" class="form-control" rows="5" required></textarea></div>
+            <hr/>
+            
+            <!-- Registration Settings -->
+            <h5>2. Registration Form Settings</h5>
+            <div class="form-row">
+                <div class="form-group col-md-6"><label>Participation Type</label><select id="participationType" class="form-control"><option value="individual" selected>Individual</option><option value="team">Team</option></select></div>
+                
+                <div class="form-group col-md-6" id="team-settings-container" style="display: none;">
+                    <div class="form-check form-check-inline mb-2">
+                        <input class="form-check-input" type="checkbox" id="teamSizeRangeToggle">
+                        <label class="form-check-label" for="teamSizeRangeToggle">Allow a range of team sizes</label>
+                    </div>
+                    <div id="fixed-size-container">
+                        <label>Required Team Size</label>
+                        <select id="fixedTeamSize" class="form-control">
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                    <div id="range-size-container" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label>Min Team Size</label>
+                                <select id="minTeamSize" class="form-control">
+                                    <option value="1">1</option>
+                                    <option value="2" selected>2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-6">
+                                <label>Max Team Size</label>
+                                <select id="maxTeamSize" class="form-control">
+                                    <option value="1" disabled>1</option>
+                                    <option value="2">2</option>
+                                    <option value="3" selected>3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Custom Questions -->
+            <div class="form-group">
+                <label><strong>Custom Form Questions</strong></label>
+                <div id="custom-questions-container"></div>
+                <button type="button" id="add-question-btn" class="btn btn-sm btn-outline-secondary mt-2">+ Add Question</button>
+            </div>
+
+            <!-- Email Content -->
+            <hr/>
+            <h5>3. Add Email Content</h5>
+            <div class="form-group"><label>Confirmation Email Content</label><textarea id="emailContent" class="form-control" rows="10" placeholder="Dear {name},..."></textarea></div>
+            <hr/>
+            <button type="submit" id="submit-event-button" class="btn btn-primary btn-lg btn-block">Save and Create Event</button>
+            <div id="success-message" class="alert alert-success mt-3" style="display: none"></div>
+          </form>
+        </div>
+
+        <!-- SECTION 2: MANAGE LIVE EVENTS -->
+        <div class="mt-4">
+          <h2 class="mb-3">Manage Live Events</h2>
+          <div class="card card-body">
+            <div id="events-list-loader" class="text-center"><p>Loading events...</p></div>
+            <div class="table-responsive">
+              <table class="table table-striped" id="events-table" style="display:none;">
+                <thead><tr><th>Event Name</th><th>Status</th><th>Is Active</th><th>Admin Actions</th></tr></thead>
+                <tbody id="events-list-container"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: MANAGE PAST EVENTS -->
+        <hr class="my-5" />
+        <div class="mt-4">
+            <h2 class="mb-3">Manage Past Events (for About Page)</h2>
+            <div class="card card-body">
+                <form id="past-events-form">
+                    <div class="row">
+                        <!-- Slot 1 -->
+                        <div class="col-lg-4 border-right">
+                            <h5 class="mb-3">Slot 1</h5>
+                            <div class="form-group"><label>Title</label><input type="text" id="pastEventTitle1" class="form-control"></div>
+                            <div class="form-group"><label>Date</label><input type="text" id="pastEventDate1" class="form-control" placeholder="e.g., 1st Jan, 2025"></div>
+                            <div class="form-group"><label>Poster</label><input type="file" id="pastEventPoster1" class="form-control-file" accept="image/*"></div>
+                        </div>
+                        <!-- Slot 2 -->
+                        <div class="col-lg-4 border-right">
+                            <h5 class="mb-3">Slot 2</h5>
+                            <div class="form-group"><label>Title</label><input type="text" id="pastEventTitle2" class="form-control"></div>
+                            <div class="form-group"><label>Date</label><input type="text" id="pastEventDate2" class="form-control" placeholder="e.g., 2nd Feb, 2025"></div>
+                            <div class="form-group"><label>Poster</label><input type="file" id="pastEventPoster2" class="form-control-file" accept="image/*"></div>
+                        </div>
+                        <!-- Slot 3 -->
+                        <div class="col-lg-4">
+                            <h5 class="mb-3">Slot 3</h5>
+                            <div class="form-group"><label>Title</label><input type="text" id="pastEventTitle3" class="form-control"></div>
+                            <div class="form-group"><label>Date</label><input type="text" id="pastEventDate3" class="form-control" placeholder="e.g., 3rd Mar, 2025"></div>
+                            <div class="form-group"><label>Poster</label><input type="file" id="pastEventPoster3" class="form-control-file" accept="image/*"></div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block mt-3">Save All Filled Past Events</button>
+                </form>
+                <hr>
+                <h5>Existing Past Events</h5>
+                <div id="past-events-loader" class="text-center"><p>Loading...</p></div>
+                <ul class="list-group" id="past-events-list"></ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<script src="../Assets/Scripts/config.js"></script>
+<script src="admin-dashboard.js"></script>
+</body>
+</html>

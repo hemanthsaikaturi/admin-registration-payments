@@ -1,0 +1,97 @@
+/* General Body Styles */
+body {
+    background-color: #f4f7f6;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+/* ============== LOGIN PAGE SPECIFIC STYLES ============== */
+.login-page-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 0 15px;
+}
+
+.login-box {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.login-box .logo {
+    width: 80px;
+    margin-bottom: 20px;
+}
+
+.login-box h3 {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    text-align: left;
+    display: block;
+    font-weight: 500;
+}
+
+/* ============== SIMPLE LOADER STYLES ============== */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.spinner {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #00629b; /* IEEE Blue */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1.5s linear infinite;
+}
+
+.loader-container p {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #555;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Style for the action button container */
+.action-buttons-container {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 5px;      
+}
+
+
+/* ============== RESPONSIVENESS ============== */
+@media (max-width: 768px) {
+    .login-box {
+        padding: 25px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    /* Stacks buttons vertically on mobile */
+    .action-buttons-container {
+        flex-direction: column; 
+        align-items: stretch;   
+    }
+}
