@@ -17,10 +17,7 @@
 <div id="dashboard-content" style="display: none">
   <nav class="navbar navbar-dark bg-dark">
     <div class="container">
-      
-      <!-- =========== MODIFIED SECTION START =========== -->
       <a class="navbar-brand" href="admin.html">
-      <!-- =========== MODIFIED SECTION END =========== -->
         <img src="../Assets/images/FinalLogo1.png" width="30" height="30" class="d-inline-block align-top" alt="IEEE Logo" />
         IEEE VBIT SB - Admin Dashboard
       </a>
@@ -58,7 +55,6 @@
             <h5>2. Registration Form Settings</h5>
             <div class="form-row">
                 <div class="form-group col-md-6"><label>Participation Type</label><select id="participationType" class="form-control"><option value="individual" selected>Individual</option><option value="team">Team</option></select></div>
-                
                 <div class="form-group col-md-6" id="team-settings-container" style="display: none;">
                     <div class="form-check form-check-inline mb-2">
                         <input class="form-check-input" type="checkbox" id="teamSizeRangeToggle">
@@ -66,49 +62,63 @@
                     </div>
                     <div id="fixed-size-container">
                         <label>Required Team Size</label>
-                        <select id="fixedTeamSize" class="form-control">
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                        </select>
+                        <select id="fixedTeamSize" class="form-control"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
                     </div>
                     <div id="range-size-container" style="display: none;">
                         <div class="form-row">
-                            <div class="form-group col-6">
-                                <label>Min Team Size</label>
-                                <select id="minTeamSize" class="form-control">
-                                    <option value="1">1</option>
-                                    <option value="2" selected>2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-6">
-                                <label>Max Team Size</label>
-                                <select id="maxTeamSize" class="form-control">
-                                    <option value="1" disabled>1</option>
-                                    <option value="2">2</option>
-                                    <option value="3" selected>3</option>
-                                    <option value="4">4</option>
-                                </select>
-                            </div>
+                            <div class="form-group col-6"><label>Min Team Size</label><select id="minTeamSize" class="form-control"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select></div>
+                            <div class="form-group col-6"><label>Max Team Size</label><select id="maxTeamSize" class="form-control"><option value="1" disabled>1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></div>
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- Custom Questions -->
-            <div class="form-group">
-                <label><strong>Custom Form Questions</strong></label>
-                <div id="custom-questions-container"></div>
-                <button type="button" id="add-question-btn" class="btn btn-sm btn-outline-secondary mt-2">+ Add Question</button>
+            <hr/>
+            <h5>3. Custom Form Questions</h5>
+            <div id="custom-questions-container"></div>
+            <button type="button" id="add-question-btn" class="btn btn-sm btn-outline-secondary mt-2">+ Add Question</button>
+
+            <!-- Payment Settings -->
+            <hr/>
+            <h5>4. Payment Settings</h5>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="enablePayments">
+                <label class="form-check-label" for="enablePayments">Enable Payments for this Event</label>
+            </div>
+            <div id="payment-details-container" style="display: none;" class="border p-3 rounded mb-3 bg-light">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="eventFee">Event Fee (e.g., 150)</label>
+                        <input type="number" class="form-control" id="eventFee" placeholder="Enter amount in INR">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="qrCodeImage">Payment QR Code Image</label>
+                        <input type="file" class="form-control-file" id="qrCodeImage" accept="image/*">
+                        <div id="current-qr-container" class="mt-2" style="display: none;">
+                           <small>Current QR:</small><br><img id="current-qr-img" src="" alt="Current QR" style="max-width: 80px; border-radius: 4px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="paymentInstructions">Payment Instructions</label>
+                    <textarea class="form-control" id="paymentInstructions" rows="3" placeholder="e.g., 1. Scan QR to pay. 2. Copy the UPI Transaction ID..."></textarea>
+                </div>
             </div>
 
             <!-- Email Content -->
             <hr/>
-            <h5>3. Add Email Content</h5>
-            <div class="form-group"><label>Confirmation Email Content</label><textarea id="emailContent" class="form-control" rows="10" placeholder="Dear {name},..."></textarea></div>
+            <h5>5. Email Content</h5>
+            <div class="form-group">
+                <label><strong>Initial Email (Sent Immediately Upon Submission)</strong></label>
+                <textarea id="emailContent" class="form-control" rows="8" placeholder="Dear {name}, Thank you for registering! Your payment is pending verification..."></textarea>
+            </div>
+           <div class="form-group" id="final-email-container" style="display: none;">
+                <label><strong>Final Confirmation Email (Sent After Manual Verification)</strong></label>
+                <textarea id="confirmationEmailContent" class="form-control" rows="8" placeholder="Dear {name}, Your payment has been successfully verified! Welcome..."></textarea>
+            </div>
             <hr/>
+
             <button type="submit" id="submit-event-button" class="btn btn-primary btn-lg btn-block">Save and Create Event</button>
             <div id="success-message" class="alert alert-success mt-3" style="display: none"></div>
           </form>
@@ -135,21 +145,19 @@
             <div class="card card-body">
                 <form id="past-events-form">
                     <div class="row">
-                        <!-- Slot 1 -->
+                        <!-- Slots -->
                         <div class="col-lg-4 border-right">
                             <h5 class="mb-3">Slot 1</h5>
                             <div class="form-group"><label>Title</label><input type="text" id="pastEventTitle1" class="form-control"></div>
                             <div class="form-group"><label>Date</label><input type="text" id="pastEventDate1" class="form-control" placeholder="e.g., 1st Jan, 2025"></div>
                             <div class="form-group"><label>Poster</label><input type="file" id="pastEventPoster1" class="form-control-file" accept="image/*"></div>
                         </div>
-                        <!-- Slot 2 -->
                         <div class="col-lg-4 border-right">
                             <h5 class="mb-3">Slot 2</h5>
                             <div class="form-group"><label>Title</label><input type="text" id="pastEventTitle2" class="form-control"></div>
                             <div class="form-group"><label>Date</label><input type="text" id="pastEventDate2" class="form-control" placeholder="e.g., 2nd Feb, 2025"></div>
                             <div class="form-group"><label>Poster</label><input type="file" id="pastEventPoster2" class="form-control-file" accept="image/*"></div>
                         </div>
-                        <!-- Slot 3 -->
                         <div class="col-lg-4">
                             <h5 class="mb-3">Slot 3</h5>
                             <div class="form-group"><label>Title</label><input type="text" id="pastEventTitle3" class="form-control"></div>

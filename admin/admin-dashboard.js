@@ -35,6 +35,7 @@ function displayEvents() {
                 <td>${activeBadge}</td>
                 <td>
                     <div class="action-buttons-container">
+                        <a href="registrations.html?eventId=${eventId}" class="btn btn-sm btn-success">View Registrations</a>
                         <a href="admin.html?edit=${eventId}" class="btn btn-sm btn-secondary">Edit</a>
                         <button class="btn btn-sm btn-info activate-btn" data-id="${eventId}" ${event.isActive ? 'disabled' : ''}>Activate</button>
                         <button class="btn btn-sm btn-warning toggle-status-btn" data-id="${eventId}">${event.status === 'open' ? 'Close' : 'Open'}</button>
@@ -91,10 +92,8 @@ async function displayPastEvents() {
     const pastEventsList = document.getElementById('past-events-list');
     const pastEventsLoader = document.getElementById('past-events-loader');
     if (!pastEventsList || !pastEventsLoader) return;
-    
     pastEventsLoader.style.display = 'block';
     pastEventsList.innerHTML = '';
-
     const snapshot = await db.collection('pastEvents').orderBy('createdAt', 'desc').get();
     if (snapshot.empty) {
         pastEventsLoader.innerHTML = '<p>No past events added yet.</p>';
@@ -109,7 +108,6 @@ async function displayPastEvents() {
         pastEventsList.appendChild(listItem);
     });
     pastEventsLoader.style.display = 'none';
-
     document.querySelectorAll('.delete-past-event-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const eventId = e.target.dataset.id;
@@ -134,27 +132,22 @@ async function populateFormForEdit(eventId) {
     try {
         const docRef = db.collection('events').doc(eventId);
         const doc = await docRef.get();
-
         if (!doc.exists) {
             alert('Error: Event not found.');
             window.location.href = 'admin.html';
             return;
         }
-
         const event = doc.data();
 
-        document.getElementById('eventName').value = event.eventName;
-        document.getElementById('eventDescription').value = event.description;
-        document.getElementById('emailContent').value = event.emailTemplate;
-
+        document.getElementById('eventName').value = event.eventName || '';
+        document.getElementById('eventDescription').value = event.description || '';
         if (event.posterURL) {
             document.getElementById('current-poster-container').style.display = 'block';
             document.getElementById('current-poster-img').src = event.posterURL;
-            document.getElementById('eventPoster').required = false;
         }
 
         const participationSelect = document.getElementById('participationType');
-        participationSelect.value = event.participationType;
+        participationSelect.value = event.participationType || 'individual';
         participationSelect.dispatchEvent(new Event('change'));
 
         if (event.participationType === 'team') {
@@ -162,13 +155,12 @@ async function populateFormForEdit(eventId) {
             const rangeToggle = document.getElementById('teamSizeRangeToggle');
             rangeToggle.checked = isRange;
             rangeToggle.dispatchEvent(new Event('change'));
-
             if (isRange) {
-                document.getElementById('minTeamSize').value = event.minTeamSize;
+                document.getElementById('minTeamSize').value = event.minTeamSize || 2;
                 document.getElementById('minTeamSize').dispatchEvent(new Event('change'));
-                document.getElementById('maxTeamSize').value = event.maxTeamSize;
+                document.getElementById('maxTeamSize').value = event.maxTeamSize || 3;
             } else {
-                document.getElementById('fixedTeamSize').value = event.maxTeamSize;
+                document.getElementById('fixedTeamSize').value = event.maxTeamSize || 2;
             }
         }
 
@@ -187,6 +179,21 @@ async function populateFormForEdit(eventId) {
             });
         }
 
+        const enablePaymentsCheckbox = document.getElementById('enablePayments');
+        enablePaymentsCheckbox.checked = event.paymentsEnabled || false;
+        enablePaymentsCheckbox.dispatchEvent(new Event('change'));
+        if (event.paymentsEnabled) {
+            document.getElementById('eventFee').value = event.eventFee || '';
+            document.getElementById('paymentInstructions').value = event.paymentInstructions || '';
+            if (event.qrCodeURL) {
+                document.getElementById('current-qr-container').style.display = 'block';
+                document.getElementById('current-qr-img').src = event.qrCodeURL;
+            }
+        }
+
+        document.getElementById('emailContent').value = event.emailTemplate || '';
+        document.getElementById('confirmationEmailContent').value = event.confirmationEmailTemplate || '';
+
     } catch (error) {
         console.error("Error fetching event for edit:", error);
         alert("Could not load event data. Please try again.");
@@ -195,7 +202,6 @@ async function populateFormForEdit(eventId) {
 
 // --- SCRIPT INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Element Definitions ---
     const dashboardContent = document.getElementById('dashboard-content');
     const logoutButton = document.getElementById('logout-button');
     const eventForm = document.getElementById('create-event-form');
@@ -211,6 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const fixedTeamSizeSelect = document.getElementById('fixedTeamSize');
     const submitButton = document.getElementById('submit-event-button');
     const formTitle = document.getElementById('form-title');
+    const enablePaymentsCheckbox = document.getElementById('enablePayments');
+    const paymentDetailsContainer = document.getElementById('payment-details-container');
+    const finalEmailContainer = document.getElementById('final-email-container');
     
     const urlParams = new URLSearchParams(window.location.search);
     const eventIdToEdit = urlParams.get('edit');
@@ -218,14 +227,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (eventIdToEdit) {
         formTitle.textContent = 'Edit Live Event';
         submitButton.textContent = 'Save Changes';
+        document.getElementById('eventPoster').required = false;
         populateFormForEdit(eventIdToEdit);
     } else {
         document.getElementById('eventPoster').required = true;
     }
     
-    // --- Event Listeners ---
     if (logoutButton) {
         logoutButton.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'admin-login.html'));
+    }
+
+    if (enablePaymentsCheckbox) {
+        enablePaymentsCheckbox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            paymentDetailsContainer.style.display = isChecked ? 'block' : 'none';
+            finalEmailContainer.style.display = isChecked ? 'block' : 'none';
+        });
     }
     
     if (participationType) {
@@ -296,19 +313,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 minTeamSize: minTeamSize,
                 maxTeamSize: maxTeamSize,
                 emailTemplate: document.getElementById('emailContent').value,
+                confirmationEmailTemplate: document.getElementById('confirmationEmailContent').value,
                 customQuestions: Array.from(document.querySelectorAll('#custom-questions-container .border')).map(q => ({
                     label: q.querySelector('[data-type="label"]').value,
                     type: q.querySelector('[data-type="type"]').value,
-                })).filter(q => q.label)
+                })).filter(q => q.label),
+                paymentsEnabled: document.getElementById('enablePayments').checked,
+                eventFee: document.getElementById('eventFee').value,
+                paymentInstructions: document.getElementById('paymentInstructions').value,
             };
             
             const eventPosterFile = document.getElementById('eventPoster').files[0];
+            const qrCodeFile = document.getElementById('qrCodeImage').files[0];
 
             try {
                 if (eventPosterFile) {
-                    const storageRef = storage.ref(`event_posters/${Date.now()}_${eventPosterFile.name}`);
-                    const uploadTask = await storageRef.put(eventPosterFile);
-                    eventData.posterURL = await uploadTask.ref.getDownloadURL();
+                    const posterRef = storage.ref(`event_posters/${Date.now()}_${eventPosterFile.name}`);
+                    const posterUpload = await posterRef.put(eventPosterFile);
+                    eventData.posterURL = await posterUpload.ref.getDownloadURL();
+                }
+
+                if (eventData.paymentsEnabled && qrCodeFile) {
+                    const qrRef = storage.ref(`qr_codes/${Date.now()}_${qrCodeFile.name}`);
+                    const qrUpload = await qrRef.put(qrCodeFile);
+                    eventData.qrCodeURL = await qrUpload.ref.getDownloadURL();
                 }
 
                 if (eventIdToEdit) {
@@ -332,9 +360,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     successMessage.textContent = `Success! Event "${eventData.eventName}" has been created.`;
                     successMessage.style.display = 'block';
                     eventForm.reset();
+                    document.getElementById('custom-questions-container').innerHTML = '';
                     participationType.dispatchEvent(new Event('change'));
                     teamSizeRangeToggle.checked = false;
                     teamSizeRangeToggle.dispatchEvent(new Event('change'));
+                    enablePaymentsCheckbox.checked = false;
+                    enablePaymentsCheckbox.dispatchEvent(new Event('change'));
                     displayEvents();
                     setTimeout(() => { successMessage.style.display = 'none'; }, 5000);
                 }
@@ -350,19 +381,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // =========== NEWLY ADDED/RESTORED CODE BLOCK START ===========
     if (pastEventsForm) {
         pastEventsForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // This is the crucial line that prevents the page refresh.
+            e.preventDefault();
             const submitButton = pastEventsForm.querySelector('button[type="submit"]');
             submitButton.disabled = true;
             submitButton.textContent = 'Saving...';
-
             for (let i = 1; i <= 3; i++) {
                 const title = document.getElementById(`pastEventTitle${i}`).value;
                 const date = document.getElementById(`pastEventDate${i}`).value;
                 const posterFile = document.getElementById(`pastEventPoster${i}`).files[0];
-                
                 if (title && date && posterFile) {
                     try {
                         const storageRef = storage.ref(`past_event_posters/${Date.now()}_slot${i}_${posterFile.name}`);
@@ -379,21 +407,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
-            
             pastEventsForm.reset();
             submitButton.disabled = false;
             submitButton.textContent = 'Save All Filled Past Events';
             displayPastEvents();
         });
     }
-    // =========== NEWLY ADDED/RESTORED CODE BLOCK END ===========
 
     auth.onAuthStateChanged((user) => {
         const loader = document.getElementById('loader');
         const dashboardContent = document.getElementById('dashboard-content');
         if (user) {
             loader.style.display = 'none';
-            if(dashboardContent) dashboardContent.style.display = 'block';
+            if (dashboardContent) dashboardContent.style.display = 'block';
             displayEvents();
             displayPastEvents();
         } else {

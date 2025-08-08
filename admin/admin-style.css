@@ -95,3 +95,18 @@ body {
         align-items: stretch;   
     }
 }
+
+.payment-instructions {
+    white-space: pre-wrap;
+    text-align: left;
+    background-color: #e9ecef;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.participant-header {
+    margin-top: 2rem;
+    border-top: 2px solid #eee;
+    padding-top: 1rem;
+}
