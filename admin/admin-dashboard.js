@@ -111,9 +111,19 @@ async function displayPastEvents() {
     document.querySelectorAll('.delete-past-event-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const eventId = e.target.dataset.id;
-            if (confirm('Are you sure you want to delete this past event?')) {
-                deletePastEvent(eventId);
-            }
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deletePastEvent(eventId);
+                }
+            });
         });
     });
 }
@@ -121,10 +131,19 @@ async function displayPastEvents() {
 async function deletePastEvent(eventId) {
     try {
         await db.collection('pastEvents').doc(eventId).delete();
+        Swal.fire(
+            'Deleted!',
+            'The past event has been removed.',
+            'success'
+        );
         displayPastEvents();
     } catch (error) {
         console.error("Error deleting past event: ", error);
-        alert("Could not delete the event.");
+        Swal.fire(
+            'Error!',
+            'Could not delete the event.',
+            'error'
+        );
     }
 }
 
@@ -196,7 +215,7 @@ async function populateFormForEdit(eventId) {
 
     } catch (error) {
         console.error("Error fetching event for edit:", error);
-        alert("Could not load event data. Please try again.");
+        Swal.fire('Error', 'Could not load event data. Please try again.', 'error');
     }
 }
 
@@ -291,8 +310,9 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.disabled = true;
             submitButton.textContent = 'Saving...';
             
+            const currentParticipationType = document.getElementById('participationType').value;
             let minTeamSize, maxTeamSize;
-            const currentParticipationType = participationType.value;
+
             if (currentParticipationType === 'team') {
                 if (teamSizeRangeToggle.checked) {
                     minTeamSize = parseInt(minTeamSizeSelect.value, 10);
@@ -341,11 +361,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (eventIdToEdit) {
                     await db.collection('events').doc(eventIdToEdit).update(eventData);
-                    alert('Event updated successfully!');
-                    window.location.href = 'admin.html';
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Event updated successfully!',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = 'admin.html';
+                    });
                 } else {
                     if (!eventPosterFile) {
-                        alert("Please select an event poster.");
+                        Swal.fire('Error', 'Please select an event poster.', 'error');
                         submitButton.disabled = false;
                         submitButton.textContent = 'Save and Create Event';
                         return;
@@ -371,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error("Error saving event: ", error);
-                alert("Error: " + error.message);
+                Swal.fire('Error!', error.message, 'error');
             } finally {
                 if (!eventIdToEdit) {
                     submitButton.disabled = false;
@@ -403,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             createdAt: firebase.firestore.FieldValue.serverTimestamp() 
                         });
                     } catch (err) { 
-                        alert(`Error uploading Slot ${i}: ${err.message}`); 
+                        Swal.fire('Error', `Error uploading Slot ${i}: ${err.message}`, 'error');
                     }
                 }
             }

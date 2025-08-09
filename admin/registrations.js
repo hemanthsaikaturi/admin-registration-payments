@@ -94,44 +94,62 @@ function addVerificationListeners(registrationCollectionName, eventData) {
         const button = e.target;
         const docId = button.dataset.docId;
 
-        if (confirm('Are you sure you want to verify this payment and send the confirmation email?')) {
-            button.disabled = true;
-            button.textContent = 'Verifying...';
-            
-            try {
-                await db.collection(registrationCollectionName).doc(docId).update({ verificationStatus: 'verified' });
-                const regDoc = await db.collection(registrationCollectionName).doc(docId).get();
+        Swal.fire({
+            title: 'Verify Payment?',
+            text: "This will send the final confirmation email to the participant(s).",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, verify and send!'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                button.disabled = true;
+                button.textContent = 'Verifying...';
+                
+                try {
+                    await db.collection(registrationCollectionName).doc(docId).update({ verificationStatus: 'verified' });
+                    const regDoc = await db.collection(registrationCollectionName).doc(docId).get();
 
-                if (regDoc.exists) {
-                    const regData = regDoc.data();
-                    const mailCollectionName = `${eventData.eventName.replace(/\s+/g, '')}Mails`;
-                    const emails = [];
-                    const names = [];
-                    for(let i=1; i <= (regData.participantCount || 1); i++) {
-                        if(regData[`p${i}_email`]) emails.push(regData[`p${i}_email`]);
-                        if(regData[`p${i}_name`]) names.push(regData[`p${i}_name`]);
-                    }
-                    
-                    const mailBody = eventData.confirmationEmailTemplate.replace(/{name}/g, names.join(' & ')).replace(/{eventName}/g, eventData.eventName);
-                        
-                    await db.collection(mailCollectionName).add({
-                        to: emails,
-                        message: {
-                            subject: `PAYMENT CONFIRMED | ${eventData.eventName}`,
-                            html: mailBody
+                    if (regDoc.exists) {
+                        const regData = regDoc.data();
+                        const mailCollectionName = `${eventData.eventName.replace(/\s+/g, '')}Mails`;
+                        const emails = [];
+                        const names = [];
+                        for(let i=1; i <= (regData.participantCount || 1); i++) {
+                            if(regData[`p${i}_email`]) emails.push(regData[`p${i}_email`]);
+                            if(regData[`p${i}_name`]) names.push(regData[`p${i}_name`]);
                         }
-                    });
-                    alert('Verification successful and confirmation email sent!');
-                } else {
-                    throw new Error("Could not find the registration document after updating.");
+                        
+                        const mailBody = eventData.confirmationEmailTemplate.replace(/{name}/g, names.join(' & ')).replace(/{eventName}/g, eventData.eventName);
+                            
+                        await db.collection(mailCollectionName).add({
+                            to: emails,
+                            message: {
+                                subject: `Your Registration is Confirmed for ${eventData.eventName}!`,
+                                html: mailBody
+                            }
+                        });
+                        Swal.fire(
+                            'Verified!',
+                            'Verification successful and confirmation email sent!',
+                            'success'
+                        );
+                    } else {
+                        throw new Error("Could not find the registration document after updating.");
+                    }
+                } catch (error) {
+                    console.error("Error during verification: ", error);
+                    Swal.fire(
+                        'Error!',
+                        'An error occurred during verification.',
+                        'error'
+                    );
+                    button.disabled = false;
+                    button.textContent = 'Verify';
                 }
-            } catch (error) {
-                console.error("Error during verification: ", error);
-                alert("An error occurred during verification.");
-                button.disabled = false;
-                button.textContent = 'Verify';
             }
-        }
+        });
     });
 }
 
