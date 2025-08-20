@@ -26,11 +26,13 @@ function displayEvents() {
         querySnapshot.forEach(doc => {
             const event = doc.data();
             const eventId = doc.id;
+            const fee = (event.eventFee > 0) ? `₹${event.eventFee}` : 'Free';
             const statusBadge = event.status === 'open' ? `<span class="badge badge-success">Open</span>` : `<span class="badge badge-secondary">Closed</span>`;
             const activeBadge = event.isActive ? `<span class="badge badge-primary">Yes</span>` : `<span class="badge badge-light">No</span>`;
             
             const row = `<tr>
                 <td>${event.eventName}</td>
+                <td><strong>${fee}</strong></td>
                 <td>${statusBadge}</td>
                 <td>${activeBadge}</td>
                 <td>
@@ -131,19 +133,11 @@ async function displayPastEvents() {
 async function deletePastEvent(eventId) {
     try {
         await db.collection('pastEvents').doc(eventId).delete();
-        Swal.fire(
-            'Deleted!',
-            'The past event has been removed.',
-            'success'
-        );
+        Swal.fire('Deleted!', 'The past event has been removed.', 'success');
         displayPastEvents();
     } catch (error) {
         console.error("Error deleting past event: ", error);
-        Swal.fire(
-            'Error!',
-            'Could not delete the event.',
-            'error'
-        );
+        Swal.fire('Error!', 'Could not delete the event.', 'error');
     }
 }
 
@@ -198,20 +192,8 @@ async function populateFormForEdit(eventId) {
             });
         }
 
-        const enablePaymentsCheckbox = document.getElementById('enablePayments');
-        enablePaymentsCheckbox.checked = event.paymentsEnabled || false;
-        enablePaymentsCheckbox.dispatchEvent(new Event('change'));
-        if (event.paymentsEnabled) {
-            document.getElementById('eventFee').value = event.eventFee || '';
-            document.getElementById('paymentInstructions').value = event.paymentInstructions || '';
-            if (event.qrCodeURL) {
-                document.getElementById('current-qr-container').style.display = 'block';
-                document.getElementById('current-qr-img').src = event.qrCodeURL;
-            }
-        }
-
+        document.getElementById('eventFee').value = event.eventFee || 0;
         document.getElementById('emailContent').value = event.emailTemplate || '';
-        document.getElementById('confirmationEmailContent').value = event.confirmationEmailTemplate || '';
 
     } catch (error) {
         console.error("Error fetching event for edit:", error);
@@ -236,9 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const fixedTeamSizeSelect = document.getElementById('fixedTeamSize');
     const submitButton = document.getElementById('submit-event-button');
     const formTitle = document.getElementById('form-title');
-    const enablePaymentsCheckbox = document.getElementById('enablePayments');
-    const paymentDetailsContainer = document.getElementById('payment-details-container');
-    const finalEmailContainer = document.getElementById('final-email-container');
     
     const urlParams = new URLSearchParams(window.location.search);
     const eventIdToEdit = urlParams.get('edit');
@@ -254,14 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (logoutButton) {
         logoutButton.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'admin-login.html'));
-    }
-
-    if (enablePaymentsCheckbox) {
-        enablePaymentsCheckbox.addEventListener('change', (e) => {
-            const isChecked = e.target.checked;
-            paymentDetailsContainer.style.display = isChecked ? 'block' : 'none';
-            finalEmailContainer.style.display = isChecked ? 'block' : 'none';
-        });
     }
     
     if (participationType) {
@@ -333,30 +304,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 minTeamSize: minTeamSize,
                 maxTeamSize: maxTeamSize,
                 emailTemplate: document.getElementById('emailContent').value,
-                confirmationEmailTemplate: document.getElementById('confirmationEmailContent').value,
                 customQuestions: Array.from(document.querySelectorAll('#custom-questions-container .border')).map(q => ({
                     label: q.querySelector('[data-type="label"]').value,
                     type: q.querySelector('[data-type="type"]').value,
                 })).filter(q => q.label),
-                paymentsEnabled: document.getElementById('enablePayments').checked,
-                eventFee: document.getElementById('eventFee').value,
-                paymentInstructions: document.getElementById('paymentInstructions').value,
+                eventFee: parseFloat(document.getElementById('eventFee').value) || 0,
             };
             
             const eventPosterFile = document.getElementById('eventPoster').files[0];
-            const qrCodeFile = document.getElementById('qrCodeImage').files[0];
 
             try {
                 if (eventPosterFile) {
                     const posterRef = storage.ref(`event_posters/${Date.now()}_${eventPosterFile.name}`);
                     const posterUpload = await posterRef.put(eventPosterFile);
                     eventData.posterURL = await posterUpload.ref.getDownloadURL();
-                }
-
-                if (eventData.paymentsEnabled && qrCodeFile) {
-                    const qrRef = storage.ref(`qr_codes/${Date.now()}_${qrCodeFile.name}`);
-                    const qrUpload = await qrRef.put(qrCodeFile);
-                    eventData.qrCodeURL = await qrUpload.ref.getDownloadURL();
                 }
 
                 if (eventIdToEdit) {
@@ -391,8 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     participationType.dispatchEvent(new Event('change'));
                     teamSizeRangeToggle.checked = false;
                     teamSizeRangeToggle.dispatchEvent(new Event('change'));
-                    enablePaymentsCheckbox.checked = false;
-                    enablePaymentsCheckbox.dispatchEvent(new Event('change'));
                     displayEvents();
                     setTimeout(() => { successMessage.style.display = 'none'; }, 5000);
                 }

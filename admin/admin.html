@@ -29,12 +29,10 @@
     <div class="row">
       <div class="col-md-12">
         
-        <!-- SECTION 1: CREATE/EDIT EVENT FORM -->
         <h2 class="mb-3" id="form-title">Create a New Live Event</h2>
         <div class="card card-body mb-5">
           <form id="create-event-form">
             
-            <!-- Basic Details -->
             <h5>1. Basic Event Details</h5>
             <div class="form-row">
                 <div class="form-group col-md-6"><label>Event Name</label><input type="text" id="eventName" class="form-control" required/></div>
@@ -51,7 +49,6 @@
             <div class="form-group"><label>Event Description</label><textarea id="eventDescription" class="form-control" rows="5" required></textarea></div>
             <hr/>
             
-            <!-- Registration Settings -->
             <h5>2. Registration Form Settings</h5>
             <div class="form-row">
                 <div class="form-group col-md-6"><label>Participation Type</label><select id="participationType" class="form-control"><option value="individual" selected>Individual</option><option value="team">Team</option></select></div>
@@ -73,49 +70,23 @@
                 </div>
             </div>
             
-            <!-- Custom Questions -->
             <hr/>
             <h5>3. Custom Form Questions</h5>
             <div id="custom-questions-container"></div>
             <button type="button" id="add-question-btn" class="btn btn-sm btn-outline-secondary mt-2">+ Add Question</button>
 
-            <!-- Payment Settings -->
             <hr/>
             <h5>4. Payment Settings</h5>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="enablePayments">
-                <label class="form-check-label" for="enablePayments">Enable Payments for this Event</label>
-            </div>
-            <div id="payment-details-container" style="display: none;" class="border p-3 rounded mb-3 bg-light">
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="eventFee">Event Fee (e.g., 150)</label>
-                        <input type="number" class="form-control" id="eventFee" placeholder="Enter amount in INR">
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="qrCodeImage">Payment QR Code Image</label>
-                        <input type="file" class="form-control-file" id="qrCodeImage" accept="image/*">
-                        <div id="current-qr-container" class="mt-2" style="display: none;">
-                           <small>Current QR:</small><br><img id="current-qr-img" src="" alt="Current QR" style="max-width: 80px; border-radius: 4px;" />
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="paymentInstructions">Payment Instructions</label>
-                    <textarea class="form-control" id="paymentInstructions" rows="3" placeholder="e.g., 1. Scan QR to pay. 2. Copy the UPI Transaction ID..."></textarea>
-                </div>
+            <div class="form-group">
+                <label for="eventFee">Event Fee (in INR)</label>
+                <input type="number" class="form-control" id="eventFee" value="0" placeholder="e.g., 150. Leave at 0 for a free event.">
             </div>
 
-            <!-- Email Content -->
             <hr/>
-            <h5>5. Email Content</h5>
+            <h5>5. Confirmation Email Content</h5>
             <div class="form-group">
-                <label><strong>Initial Email (Sent Immediately Upon Submission)</strong></label>
-                <textarea id="emailContent" class="form-control" rows="8" placeholder="Dear {name}, Thank you for registering! Your payment is pending verification..."></textarea>
-            </div>
-           <div class="form-group" id="final-email-container" style="display: none;">
-                <label><strong>Final Confirmation Email (Sent After Manual Verification)</strong></label>
-                <textarea id="confirmationEmailContent" class="form-control" rows="8" placeholder="Dear {name}, Your payment has been successfully verified! Welcome..."></textarea>
+                <label>This email is sent immediately after a successful registration (and payment, if any).</label>
+                <textarea id="emailContent" class="form-control" rows="8" placeholder="Dear {name}, Thank you for registering for {eventName}! Your spot is confirmed..."></textarea>
             </div>
             <hr/>
 
@@ -124,21 +95,19 @@
           </form>
         </div>
 
-        <!-- SECTION 2: MANAGE LIVE EVENTS -->
         <div class="mt-4">
           <h2 class="mb-3">Manage Live Events</h2>
           <div class="card card-body">
             <div id="events-list-loader" class="text-center"><p>Loading events...</p></div>
             <div class="table-responsive">
               <table class="table table-striped" id="events-table" style="display:none;">
-                <thead><tr><th>Event Name</th><th>Status</th><th>Is Active</th><th>Admin Actions</th></tr></thead>
+                <thead><tr><th>Event Name</th><th>Fee</th><th>Status</th><th>Is Active</th><th>Admin Actions</th></tr></thead>
                 <tbody id="events-list-container"></tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- SECTION 3: MANAGE PAST EVENTS -->
         <hr class="my-5" />
         <div class="mt-4">
             <h2 class="mb-3">Manage Past Events (for About Page)</h2>

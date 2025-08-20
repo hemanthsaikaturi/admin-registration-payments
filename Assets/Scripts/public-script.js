@@ -13,6 +13,10 @@ const registrationSection = document.getElementById('registration-section');
 const regFormContainer = document.getElementById('registration-form-container');
 const regForm = document.getElementById('public-reg-form');
 
+// =========== NEW: Add your Firebase Function URL and Razorpay Key ID ===========
+const CREATE_ORDER_URL = 'https://createorder-7t72agb4ha-uc.a.run.app'; // e.g., https://us-central1-your-project-id.cloudfunctions.net/createOrder
+const RAZORPAY_KEY_ID = 'rzp_test_R7YFfqfgwduxU3'; // e.g., rzp_test_xxxxxxxxxxxxxx
+
 // --- PRELOADER HIDING FUNCTION ---
 function hidePreloader() {
     if (preloader && content) {
@@ -96,10 +100,7 @@ function generateRegistrationForm(event) {
     const regFormContainer = document.getElementById('registration-form-container');
     let finalHTML = '';
     
-    // Step 1: Build the Participant Details Section
-    const participantLabelText = event.paymentsEnabled ? 'Step 1: Fill Participant Details' : 'Registration Details';
-    let participantHTML = `<div class="participant-header"><label class="participant-label">${participantLabelText}</label></div>`;
-
+    let participantHTML = `<div class="participant-header"><label class="participant-label">Registration Details</label></div>`;
     const teamSizeSelectorContainer = document.getElementById('team-size-selector-container');
     if (event.participationType === 'team' && event.minTeamSize < event.maxTeamSize) {
         teamSizeSelectorContainer.style.display = 'block';
@@ -124,7 +125,6 @@ function generateRegistrationForm(event) {
                      </div>`;
     }
 
-    // Custom Questions
     if (event.customQuestions && event.customQuestions.length > 0) {
         participantHTML += `<div class="participant"><label class="participant-label">Additional Questions</label><div class="fields">`;
         event.customQuestions.forEach((q) => {
@@ -144,33 +144,7 @@ function generateRegistrationForm(event) {
         participantHTML += `</div></div>`;
     }
     
-    // Step 2: Build the Payment Section if enabled
-    let paymentHTML = '';
-    if (event.paymentsEnabled && event.qrCodeURL) {
-        paymentHTML = `
-            <div class="participant">
-                <label class="participant-label">Step 2: Complete Your Payment</label>
-                <div class="fields text-center">
-                    <div class="payment-instructions">${event.paymentInstructions || ''}</div>
-                    <h5 class="mt-2"><strong>Event Fee: ₹${event.eventFee}</strong></h5>
-                    <img src="${event.qrCodeURL}" alt="Payment QR Code" style="max-width: 250px; border-radius: 8px;" class="mb-3">
-                    <div class="row justify-content-center">
-                        <div class="col-md-6 form-group">
-                            <input type="text" class="form-control" placeholder="UPI Transaction ID" name="transactionId" required>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label for="paymentScreenshot" class="form-control-label" style="text-align: left; display: block;">Upload Payment Screenshot (Required)</label>
-                            <input type="file" class="form-control-file" name="paymentScreenshot" accept="image/*" required>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // Step 3: Combine the sections in the new order
-    finalHTML = participantHTML + paymentHTML;
-    
+    finalHTML = participantHTML;
     if (regFormContainer) {
         regFormContainer.innerHTML = finalHTML;
     }
@@ -179,9 +153,50 @@ function generateRegistrationForm(event) {
         const selector = document.getElementById('team-size-selector');
         if (selector) {
             selector.addEventListener('change', () => handleTeamSizeChange(event.maxTeamSize));
-            handleTeamSizeChange(event.maxTeamSize); // Call it once initially
+            handleTeamSizeChange(event.maxTeamSize);
         }
     }
+}
+
+async function saveRegistrationAndSendEmail(eventData, registrationData) {
+    registrationData.timeStamp = firebase.firestore.FieldValue.serverTimestamp();
+    
+    let participantCount;
+    const teamSizeSelector = document.getElementById('team-size-selector');
+    if (teamSizeSelector && teamSizeSelector.offsetParent !== null) {
+        participantCount = parseInt(teamSizeSelector.value, 10);
+    } else if (eventData.participationType === 'team') {
+        participantCount = eventData.maxTeamSize;
+    } else {
+        participantCount = 1;
+    }
+    registrationData.participantCount = participantCount;
+
+    const collectionSuffix = eventData.participationType === 'team' ? 'Teams' : 'Participants';
+    const collectionName = `${eventData.eventName.replace(/\s+/g, '')}${collectionSuffix}`;
+    const mailCollectionName = `${eventData.eventName.replace(/\s+/g, '')}Mails`;
+
+    await db.collection(collectionName).add(registrationData);
+    
+    const emails = [];
+    let names = [];
+    for (let i = 1; i <= participantCount; i++) {
+        if (registrationData[`p${i}_email`]) emails.push(registrationData[`p${i}_email`]);
+        if (registrationData[`p${i}_name`]) names.push(registrationData[`p${i}_name`]);
+    }
+    
+    const mailSubject = `Registration Confirmed for ${eventData.eventName}!`;
+    let mailBody = eventData.emailTemplate.replace(/{name}/g, names.join(' & ')).replace(/{eventName}/g, eventData.eventName);
+    await db.collection(mailCollectionName).add({ to: emails, message: { subject: mailSubject, html: mailBody } });
+
+    Swal.fire({
+        title: 'Registration Successful!',
+        text: 'Your spot is confirmed. You will receive a confirmation email shortly.',
+        icon: 'success',
+        confirmButtonText: 'Great!'
+    }).then((result) => {
+        if (result.isConfirmed) { window.location.href = 'about.html'; }
+    });
 }
 
 // --- FORM SUBMISSION ---
@@ -190,7 +205,6 @@ if (regForm) {
         e.preventDefault();
         const submitButton = document.getElementById('submit-button');
         submitButton.disabled = true;
-        submitButton.textContent = 'Submitting...';
         
         try {
             const eventsRef = db.collection('events');
@@ -199,81 +213,68 @@ if (regForm) {
                 Swal.fire('Registration Closed', 'This event is no longer active.', 'warning');
                 return;
             }
-
             const eventData = snapshot.docs[0].data();
+            const eventFee = parseFloat(eventData.eventFee) || 0;
+
             const formData = new FormData(regForm);
             const registrationData = {};
-            for (const [key, value] of formData.entries()) { 
-                if (key !== 'paymentScreenshot') {
-                    registrationData[key] = value;
-                }
+            for (const [key, value] of formData.entries()) {
+                registrationData[key] = value;
             }
-
-            registrationData.timeStamp = firebase.firestore.FieldValue.serverTimestamp();
             
-            let participantCount;
-            const teamSizeSelector = document.getElementById('team-size-selector');
-            if (teamSizeSelector && teamSizeSelector.offsetParent !== null) {
-                participantCount = parseInt(teamSizeSelector.value, 10);
-            } else if (eventData.participationType === 'team') {
-                participantCount = eventData.maxTeamSize;
-            } else {
-                participantCount = 1;
-            }
-            registrationData.participantCount = participantCount;
+            if (eventFee > 0) {
+                // PAID EVENT FLOW
+                submitButton.textContent = 'Processing Payment...';
 
-            if (eventData.paymentsEnabled) {
-                const screenshotFile = formData.get('paymentScreenshot');
-                if (!screenshotFile || screenshotFile.size === 0) throw new Error("Payment screenshot is required.");
+                const orderResponse = await fetch(CREATE_ORDER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: eventFee }),
+                });
+
+                if (!orderResponse.ok) throw new Error('Could not create payment order.');
+                const order = await orderResponse.json();
+
+                const options = {
+                    key: RAZORPAY_KEY_ID,
+                    amount: order.amount,
+                    currency: order.currency,
+                    name: "IEEE - VBIT SB",
+                    description: `Payment for ${eventData.eventName}`,
+                    order_id: order.id,
+                    handler: async function (response) {
+                        registrationData.razorpay_payment_id = response.razorpay_payment_id;
+                        registrationData.razorpay_order_id = response.razorpay_order_id;
+                        await saveRegistrationAndSendEmail(eventData, registrationData);
+                    },
+                    prefill: {
+                        name: registrationData.p1_name,
+                        email: registrationData.p1_email,
+                        contact: registrationData.p1_phone,
+                    },
+                    theme: { color: "#00629b" }
+                };
                 
-                const screenshotRef = storage.ref(`screenshots/${Date.now()}_${screenshotFile.name}`);
-                const uploadTask = await screenshotRef.put(screenshotFile);
-                registrationData.screenshotURL = await uploadTask.ref.getDownloadURL();
-                registrationData.verificationStatus = 'pending';
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (response) {
+                    console.error("Payment Failed:", response.error);
+                    Swal.fire('Payment Failed', response.error.description, 'error');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Submit';
+                });
+                rzp.open();
+
             } else {
-                registrationData.verificationStatus = 'not-required';
+                // FREE EVENT FLOW
+                submitButton.textContent = 'Submitting...';
+                await saveRegistrationAndSendEmail(eventData, registrationData);
             }
-            
-            const collectionSuffix = eventData.participationType === 'team' ? 'Teams' : 'Participants';
-            const collectionName = `${eventData.eventName.replace(/\s+/g, '')}${collectionSuffix}`;
-            const mailCollectionName = `${eventData.eventName.replace(/\s+/g, '')}Mails`;
-
-            await db.collection(collectionName).add(registrationData);
-            
-            const emails = [];
-            let names = [];
-            for (let i = 1; i <= participantCount; i++) {
-                if (registrationData[`p${i}_email`]) emails.push(registrationData[`p${i}_email`]);
-                if (registrationData[`p${i}_name`]) names.push(registrationData[`p${i}_name`]);
-            }
-            
-            const mailSubject = `Registration Received for ${eventData.eventName} | IEEE - VBIT SB`;
-            let mailBody = eventData.emailTemplate.replace(/{name}/g, names.join(' & ')).replace(/{eventName}/g, eventData.eventName);
-            await db.collection(mailCollectionName).add({ to: emails, message: { subject: mailSubject, html: mailBody } });
-
-            const successTitle = eventData.paymentsEnabled ? 'Registration Submitted!' : 'Registration Successful!';
-            const successText = eventData.paymentsEnabled 
-                ? 'Your spot is reserved. You will receive a final confirmation email once your payment is verified by our team.'
-                : 'Thank you for registering. You will receive a confirmation email shortly.';
-            const successIcon = eventData.paymentsEnabled ? 'info' : 'success';
-
-            Swal.fire({
-                title: successTitle,
-                text: successText,
-                icon: successIcon,
-                confirmButtonText: 'Great!'
-            }).then((result) => {
-                if (result.isConfirmed) { window.location.href = 'about.html'; }
-            });
 
         } catch (error) {
             console.error("Error submitting registration:", error);
-            Swal.fire('Submission Error', 'There was an error submitting your registration. Please try again.', 'error');
-        } finally {
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Submit';
-            }
+            Swal.fire('Submission Error', 'An error occurred. Please try again.', 'error');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit';
         }
     });
 }
