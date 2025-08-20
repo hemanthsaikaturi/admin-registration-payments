@@ -2,7 +2,6 @@ const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const Razorpay = require("razorpay");
 
-// Access the secret keys using the new method for Gen 2
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
@@ -14,12 +13,20 @@ if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
     });
 }
 
+// =================================================================
+// CRITICAL FIX: Define the list of allowed origins (your websites)
+// =================================================================
+const allowedOrigins = [
+    "https://registration.ieeevbitsb.in",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500"
+];
+
 exports.createOrder = onRequest(
     // This object explicitly defines the settings for the Gen 2 function
     {
-        // This is a list of trusted domains. Add your live domain here.
-        cors: ["https://registration.ieeevbitsb.in", "http://127.0.0.1:5500"], 
-        // This makes the secret keys available as environment variables
+        // We now pass our list of trusted domains to the CORS option
+        cors: allowedOrigins, 
         secrets: ["RAZORPAY_KEY_ID", "RAZORPAY_KEY_SECRET"],
     }, 
     async (request, response) => {
