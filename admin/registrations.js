@@ -121,7 +121,12 @@ function addVerificationListeners(registrationCollectionName, eventData) {
                             if(regData[`p${i}_name`]) names.push(regData[`p${i}_name`]);
                         }
                         
-                        const mailBody = eventData.confirmationEmailTemplate.replace(/{name}/g, names.join(' & ')).replace(/{eventName}/g, eventData.eventName);
+                        // =========== CRITICAL FIX START ===========
+                        // Use the single 'emailTemplate' field, not 'confirmationEmailTemplate'
+                        const mailBody = eventData.emailTemplate
+                            .replace(/{name}/g, names.join(' & '))
+                            .replace(/{eventName}/g, eventData.eventName);
+                        // =========== CRITICAL FIX END ===========
                             
                         await db.collection(mailCollectionName).add({
                             to: emails,

@@ -78,8 +78,23 @@
             <hr/>
             <h5>4. Payment Settings</h5>
             <div class="form-group">
-                <label for="eventFee">Event Fee (in INR)</label>
-                <input type="number" class="form-control" id="eventFee" value="0" placeholder="e.g., 150. Leave at 0 for a free event.">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="paymentType" id="freeEventRadio" value="free" checked>
+                    <label class="form-check-label" for="freeEventRadio">Free Event</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="paymentType" id="paidEventRadio" value="paid">
+                    <label class="form-check-label" for="paidEventRadio">Paid Event</label>
+                </div>
+            </div>
+            <div class="form-group" id="event-fee-container" style="display: none;">
+                <label for="eventFee">Event Fee</label>
+                <div class="input-group" style="max-width: 250px;">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">₹</span>
+                    </div>
+                    <input type="number" class="form-control" id="eventFee" placeholder="e.g., 150" min="1">
+                </div>
             </div>
 
             <hr/>

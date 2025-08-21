@@ -14,8 +14,8 @@ const regFormContainer = document.getElementById('registration-form-container');
 const regForm = document.getElementById('public-reg-form');
 
 // =========== NEW: Add your Firebase Function URL and Razorpay Key ID ===========
-const CREATE_ORDER_URL = 'https://createorder-7t72agb4ha-uc.a.run.app'; // e.g., https://us-central1-your-project-id.cloudfunctions.net/createOrder
-const RAZORPAY_KEY_ID = 'rzp_test_R7YFfqfgwduxU3'; // e.g., rzp_test_xxxxxxxxxxxxxx
+const CREATE_ORDER_URL = 'https://createorder-7t72agb4ha-uc.a.run.app'; // Paste your actual URL here
+const RAZORPAY_KEY_ID = 'rzp_test_R7YFfqfgwduxU3'; // Paste your actual Razorpay Key ID here // e.g., rzp_test_xxxxxxxxxxxxxx
 
 // --- PRELOADER HIDING FUNCTION ---
 function hidePreloader() {

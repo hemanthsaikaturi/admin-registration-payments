@@ -192,7 +192,25 @@ async function populateFormForEdit(eventId) {
             });
         }
 
-        document.getElementById('eventFee').value = event.eventFee || 0;
+        // =========== CRITICAL FIX START ===========
+        const eventFee = parseFloat(event.eventFee) || 0;
+        const freeRadio = document.getElementById('freeEventRadio');
+        const paidRadio = document.getElementById('paidEventRadio');
+        const eventFeeContainer = document.getElementById('event-fee-container');
+        const eventFeeInput = document.getElementById('eventFee');
+        
+        if (eventFee > 0) {
+            paidRadio.checked = true;
+            eventFeeInput.value = eventFee;
+            eventFeeContainer.style.display = 'block';
+            eventFeeInput.required = true;
+        } else {
+            freeRadio.checked = true;
+            eventFeeContainer.style.display = 'none';
+            eventFeeInput.required = false;
+        }
+        // =========== CRITICAL FIX END ===========
+
         document.getElementById('emailContent').value = event.emailTemplate || '';
 
     } catch (error) {
@@ -218,6 +236,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const fixedTeamSizeSelect = document.getElementById('fixedTeamSize');
     const submitButton = document.getElementById('submit-event-button');
     const formTitle = document.getElementById('form-title');
+    const freeEventRadio = document.getElementById('freeEventRadio');
+    const paidEventRadio = document.getElementById('paidEventRadio');
+    const eventFeeContainer = document.getElementById('event-fee-container');
+    const eventFeeInput = document.getElementById('eventFee');
     
     const urlParams = new URLSearchParams(window.location.search);
     const eventIdToEdit = urlParams.get('edit');
@@ -234,6 +256,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutButton) {
         logoutButton.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'admin-login.html'));
     }
+
+    [freeEventRadio, paidEventRadio].forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (paidEventRadio.checked) {
+                eventFeeContainer.style.display = 'block';
+                eventFeeInput.required = true;
+            } else {
+                eventFeeContainer.style.display = 'none';
+                eventFeeInput.required = false;
+                eventFeeInput.value = 0;
+            }
+        });
+    });
     
     if (participationType) {
         participationType.addEventListener('change', (e) => {
