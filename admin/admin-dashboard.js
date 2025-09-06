@@ -228,7 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutButton = document.getElementById('logout-button');
     const eventForm = document.getElementById('create-event-form');
     const participationType = document.getElementById('participationType');
-    const addQuestionBtn = document.getElementById('add-question-btn');
     const pastEventsForm = document.getElementById('past-events-form');
     const teamSettingsContainer = document.getElementById('team-settings-container');
     const teamSizeRangeToggle = document.getElementById('teamSizeRangeToggle');
@@ -415,7 +414,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     successMessage.textContent = `Success! Event "${eventData.eventName}" has been created.`;
                     successMessage.style.display = 'block';
                     eventForm.reset();
-                    document.getElementById('custom-questions-container').innerHTML = '';
+                    // Clear the question containers specifically
+                    document.getElementById('student-questions-container').innerHTML = '';
+                    document.getElementById('faculty-questions-container').innerHTML = '';
                     participationType.dispatchEvent(new Event('change'));
                     teamSizeRangeToggle.checked = false;
                     teamSizeRangeToggle.dispatchEvent(new Event('change'));
@@ -481,4 +482,4 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'admin-login.html';
         }
     });
-}); 
+});
