@@ -25,7 +25,7 @@ async function displayRegistrations(eventId) {
         const eventName = eventData.eventName;
         document.getElementById('event-name-title').textContent = `Registrations for: ${eventName}`;
 
-        const collectionSuffix = eventData.participationType === 'team' ? 'Teams' : 'Participants';
+        const collectionSuffix = 'Participants';
         const registrationCollectionName = `${eventName.replace(/\s+/g, '')}${collectionSuffix}`;
 
         db.collection(registrationCollectionName).orderBy('timeStamp', 'desc').onSnapshot(snapshot => {
@@ -39,11 +39,7 @@ async function displayRegistrations(eventId) {
                 return;
             }
             
-            let headers = ['Timestamp'];
-            const maxParticipants = eventData.maxTeamSize || 1;
-            for (let i = 1; i <= maxParticipants; i++) {
-                headers.push(`P${i} Name`, `P${i} Email`, `P${i} Phone`);
-            }
+            let headers = ['Timestamp', 'Category', 'Name', 'Email', 'Phone', 'College/Dept'];
             const firstDocData = snapshot.docs[0].data();
             if (firstDocData.verificationStatus && firstDocData.verificationStatus !== 'not-required') {
                 headers.push('Transaction ID', 'Screenshot', 'Status', 'Actions');
@@ -55,18 +51,30 @@ async function displayRegistrations(eventId) {
                 allRegistrationsData.push(reg);
                 const regId = doc.id;
                 const date = reg.timeStamp ? reg.timeStamp.toDate().toLocaleString() : 'N/A';
-                let rowHTML = `<td>${date}</td>`;
-                for (let i = 1; i <= maxParticipants; i++) {
-                    const name = reg[`p${i}_name`] || '';
-                    if (name) {
-                        rowHTML += `<td>${name}</td><td>${reg[`p${i}_email`] || ''}</td><td>${reg[`p${i}_phone`] || ''}</td>`;
-                    } else if (eventData.participationType === 'team') {
-                        rowHTML += `<td></td><td></td><td></td>`;
-                    }
-                }
+                
+                const category = reg.participantCategory || 'student';
+                const collegeOrDept = category === 'student' ? (reg.p1_college || '') : (reg.p1_dept || '');
+                
+                let rowHTML = `<td>${date}</td>
+                               <td><span class="badge badge-info">${category.toUpperCase()}</span></td>
+                               <td>${reg.p1_name || ''}</td>
+                               <td>${reg.p1_email || ''}</td>
+                               <td>${reg.p1_phone || ''}</td>
+                               <td>${collegeOrDept}</td>`;
+
                 if (reg.verificationStatus && reg.verificationStatus !== 'not-required') {
-                    const statusBadge = reg.verificationStatus === 'verified' ? `<span class="badge badge-success">Verified</span>` : `<span class="badge badge-warning">Pending</span>`;
-                    rowHTML += `<td>${reg.transactionId || ''}</td><td><a href="${reg.screenshotURL}" target="_blank" class="btn btn-sm btn-outline-info">View</a></td><td>${statusBadge}</td><td>${reg.verificationStatus !== 'verified' ? `<button class="btn btn-sm btn-primary verify-btn" data-doc-id="${regId}">Verify</button>` : 'Confirmed'}</td>`;
+                    const statusBadge = reg.verificationStatus === 'verified'
+                        ? `<span class="badge badge-success">Verified</span>`
+                        : `<span class="badge badge-warning">Pending</span>`;
+
+                    rowHTML += `
+                        <td>${reg.transactionId || ''}</td>
+                        <td><a href="${reg.screenshotURL}" target="_blank" class="btn btn-sm btn-outline-info">View</a></td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            ${reg.verificationStatus !== 'verified' ? `<button class="btn btn-sm btn-primary verify-btn" data-doc-id="${regId}">Verify</button>` : 'Confirmed'}
+                        </td>
+                    `;
                 }
                 container.innerHTML += `<tr>${rowHTML}</tr>`;
             });
@@ -96,7 +104,7 @@ function addVerificationListeners(registrationCollectionName, eventData) {
 
         Swal.fire({
             title: 'Verify Payment?',
-            text: "This will send the final confirmation email to the participant(s).",
+            text: "This will send the final confirmation email to the participant.",
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -114,22 +122,19 @@ function addVerificationListeners(registrationCollectionName, eventData) {
                     if (regDoc.exists) {
                         const regData = regDoc.data();
                         const mailCollectionName = `${eventData.eventName.replace(/\s+/g, '')}Mails`;
-                        const emails = [];
-                        const names = [];
-                        for(let i=1; i <= (regData.participantCount || 1); i++) {
-                            if(regData[`p${i}_email`]) emails.push(regData[`p${i}_email`]);
-                            if(regData[`p${i}_name`]) names.push(regData[`p${i}_name`]);
-                        }
-                        
+                        const emails = [regData.p1_email];
+                        const names = [regData.p1_name];
+                        const mailSubject = `Your Registration is Confirmed for ${eventData.eventName}!`;
                         const mailBody = eventData.confirmationEmailTemplate.replace(/{name}/g, names.join(' & ')).replace(/{eventName}/g, eventData.eventName);
                             
                         await db.collection(mailCollectionName).add({
                             to: emails,
                             message: {
-                                subject: `Your Registration is Confirmed for ${eventData.eventName}!`,
-                                html: mailBody
+                                subject: mailSubject,
+                                html: mailBody      
                             }
                         });
+                        
                         Swal.fire(
                             'Verified!',
                             'Verification successful and confirmation email sent!',

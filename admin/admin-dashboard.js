@@ -26,11 +26,13 @@ function displayEvents() {
         querySnapshot.forEach(doc => {
             const event = doc.data();
             const eventId = doc.id;
+            const fee = (event.eventFee > 0) ? `₹${event.eventFee}` : 'Free';
             const statusBadge = event.status === 'open' ? `<span class="badge badge-success">Open</span>` : `<span class="badge badge-secondary">Closed</span>`;
             const activeBadge = event.isActive ? `<span class="badge badge-primary">Yes</span>` : `<span class="badge badge-light">No</span>`;
             
             const row = `<tr>
                 <td>${event.eventName}</td>
+                <td><strong>${fee}</strong></td>
                 <td>${statusBadge}</td>
                 <td>${activeBadge}</td>
                 <td>
@@ -131,19 +133,28 @@ async function displayPastEvents() {
 async function deletePastEvent(eventId) {
     try {
         await db.collection('pastEvents').doc(eventId).delete();
-        Swal.fire(
-            'Deleted!',
-            'The past event has been removed.',
-            'success'
-        );
+        Swal.fire('Deleted!', 'The past event has been removed.', 'success');
         displayPastEvents();
     } catch (error) {
         console.error("Error deleting past event: ", error);
-        Swal.fire(
-            'Error!',
-            'Could not delete the event.',
-            'error'
-        );
+        Swal.fire('Error!', 'Could not delete the event.', 'error');
+    }
+}
+
+function populateCustomQuestions(containerId, questions) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    if (questions && questions.length > 0) {
+        questions.forEach(q => {
+            const newQuestionHTML = `<div class="border p-2 mb-2 rounded bg-light">
+                <div class="form-row align-items-center">
+                    <div class="col-md-7"><input type="text" class="form-control form-control-sm" data-type="label" value="${q.label}" required></div>
+                    <div class="col-md-4"><select class="form-control form-control-sm" data-type="type" value="${q.type}"><option value="text">Text Answer</option><option value="yesno">Yes / No</option><option value="rating">Rating (1-10)</option></select></div>
+                    <div class="col-md-1 text-right"><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.border').remove()">X</button></div>
+                </div></div>`;
+            container.insertAdjacentHTML('beforeend', newQuestionHTML);
+            container.querySelector('.border:last-child [data-type="type"]').value = q.type;
+        });
     }
 }
 
@@ -165,6 +176,10 @@ async function populateFormForEdit(eventId) {
             document.getElementById('current-poster-img').src = event.posterURL;
         }
 
+        const eventAudienceSelect = document.getElementById('eventAudience');
+        eventAudienceSelect.value = event.eventAudience || 'students_only';
+        eventAudienceSelect.dispatchEvent(new Event('change'));
+
         const participationSelect = document.getElementById('participationType');
         participationSelect.value = event.participationType || 'individual';
         participationSelect.dispatchEvent(new Event('change'));
@@ -183,21 +198,9 @@ async function populateFormForEdit(eventId) {
             }
         }
 
-        const questionsContainer = document.getElementById('custom-questions-container');
-        questionsContainer.innerHTML = '';
-        if (event.customQuestions && event.customQuestions.length > 0) {
-            event.customQuestions.forEach(q => {
-                const newQuestionHTML = `<div class="border p-2 mb-2 rounded bg-light">
-                    <div class="form-row align-items-center">
-                        <div class="col-md-7"><input type="text" class="form-control form-control-sm" data-type="label" value="${q.label}" required></div>
-                        <div class="col-md-4"><select class="form-control form-control-sm" data-type="type" value="${q.type}"><option value="text">Text Answer</option><option value="yesno">Yes / No</option><option value="rating">Rating (1-10)</option></select></div>
-                        <div class="col-md-1 text-right"><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.border').remove()">X</button></div>
-                    </div></div>`;
-                questionsContainer.insertAdjacentHTML('beforeend', newQuestionHTML);
-                questionsContainer.querySelector('.border:last-child [data-type="type"]').value = q.type;
-            });
-        }
-
+        populateCustomQuestions('student-questions-container', event.studentCustomQuestions);
+        populateCustomQuestions('faculty-questions-container', event.facultyCustomQuestions);
+        
         const enablePaymentsCheckbox = document.getElementById('enablePayments');
         enablePaymentsCheckbox.checked = event.paymentsEnabled || false;
         enablePaymentsCheckbox.dispatchEvent(new Event('change'));
@@ -239,6 +242,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const enablePaymentsCheckbox = document.getElementById('enablePayments');
     const paymentDetailsContainer = document.getElementById('payment-details-container');
     const finalEmailContainer = document.getElementById('final-email-container');
+    const eventAudienceSelect = document.getElementById('eventAudience');
+    const studentQuestionsSection = document.getElementById('student-questions-section');
+    const facultyQuestionsSection = document.getElementById('faculty-questions-section');
+    const addStudentQuestionBtn = document.getElementById('add-student-question-btn');
+    const addFacultyQuestionBtn = document.getElementById('add-faculty-question-btn');
     
     const urlParams = new URLSearchParams(window.location.search);
     const eventIdToEdit = urlParams.get('edit');
@@ -262,6 +270,15 @@ document.addEventListener('DOMContentLoaded', () => {
             paymentDetailsContainer.style.display = isChecked ? 'block' : 'none';
             finalEmailContainer.style.display = isChecked ? 'block' : 'none';
         });
+    }
+
+    if (eventAudienceSelect) {
+        eventAudienceSelect.addEventListener('change', (e) => {
+            const audience = e.target.value;
+            studentQuestionsSection.style.display = (audience === 'students_only' || audience === 'students_and_faculty') ? 'block' : 'none';
+            facultyQuestionsSection.style.display = (audience === 'faculty_only' || audience === 'students_and_faculty') ? 'block' : 'none';
+        });
+        eventAudienceSelect.dispatchEvent(new Event('change'));
     }
     
     if (participationType) {
@@ -291,17 +308,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    if (addQuestionBtn) {
-        addQuestionBtn.addEventListener('click', () => {
-            const container = document.getElementById('custom-questions-container');
-            const newQuestionHTML = `<div class="border p-2 mb-2 rounded bg-light">
-                <div class="form-row align-items-center">
-                    <div class="col-md-7"><input type="text" class="form-control form-control-sm" data-type="label" placeholder="Question Label" required></div>
-                    <div class="col-md-4"><select class="form-control form-control-sm" data-type="type"><option value="text">Text Answer</option><option value="yesno">Yes / No</option><option value="rating">Rating (1-10)</option></select></div>
-                    <div class="col-md-1 text-right"><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.border').remove()">X</button></div>
-                </div></div>`;
-            container.insertAdjacentHTML('beforeend', newQuestionHTML);
-        });
+    function addQuestion(containerId) {
+        const container = document.getElementById(containerId);
+        const newQuestionHTML = `<div class="border p-2 mb-2 rounded bg-light">
+            <div class="form-row align-items-center">
+                <div class="col-md-7"><input type="text" class="form-control form-control-sm" data-type="label" placeholder="Question Label" required></div>
+                <div class="col-md-4"><select class="form-control form-control-sm" data-type="type"><option value="text">Text Answer</option><option value="yesno">Yes / No</option><option value="rating">Rating (1-10)</option></select></div>
+                <div class="col-md-1 text-right"><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.border').remove()">X</button></div>
+            </div></div>`;
+        container.insertAdjacentHTML('beforeend', newQuestionHTML);
+    }
+    
+    if (addStudentQuestionBtn) {
+        addStudentQuestionBtn.addEventListener('click', () => addQuestion('student-questions-container'));
+    }
+    if (addFacultyQuestionBtn) {
+        addFacultyQuestionBtn.addEventListener('click', () => addQuestion('faculty-questions-container'));
     }
 
     if (eventForm) {
@@ -326,18 +348,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 maxTeamSize = 1;
             }
 
+            function getCustomQuestions(containerId) {
+                return Array.from(document.querySelectorAll(`#${containerId} .border`)).map(q => ({
+                    label: q.querySelector('[data-type="label"]').value,
+                    type: q.querySelector('[data-type="type"]').value,
+                })).filter(q => q.label);
+            }
+
             const eventData = {
                 eventName: document.getElementById('eventName').value,
                 description: document.getElementById('eventDescription').value,
                 participationType: currentParticipationType,
+                eventAudience: document.getElementById('eventAudience').value,
                 minTeamSize: minTeamSize,
                 maxTeamSize: maxTeamSize,
                 emailTemplate: document.getElementById('emailContent').value,
                 confirmationEmailTemplate: document.getElementById('confirmationEmailContent').value,
-                customQuestions: Array.from(document.querySelectorAll('#custom-questions-container .border')).map(q => ({
-                    label: q.querySelector('[data-type="label"]').value,
-                    type: q.querySelector('[data-type="type"]').value,
-                })).filter(q => q.label),
+                studentCustomQuestions: getCustomQuestions('student-questions-container'),
+                facultyCustomQuestions: getCustomQuestions('faculty-questions-container'),
                 paymentsEnabled: document.getElementById('enablePayments').checked,
                 eventFee: document.getElementById('eventFee').value,
                 paymentInstructions: document.getElementById('paymentInstructions').value,
@@ -453,4 +481,4 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'admin-login.html';
         }
     });
-});
+}); 

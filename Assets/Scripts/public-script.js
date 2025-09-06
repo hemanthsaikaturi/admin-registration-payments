@@ -5,13 +5,14 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// --- PRELOADER AND CONTENT ELEMENTS ---
+// --- Element Definitions ---
 const preloader = document.getElementById("preloader");
 const content = document.getElementById("content");
 const mainContent = document.getElementById('main-content');
 const registrationSection = document.getElementById('registration-section');
 const regFormContainer = document.getElementById('registration-form-container');
 const regForm = document.getElementById('public-reg-form');
+const participantTypeSelector = document.getElementById('participant-type-selector');
 
 // --- PRELOADER HIDING FUNCTION ---
 function hidePreloader() {
@@ -37,7 +38,7 @@ async function loadActiveEvent() {
             const eventData = eventDoc.data();
             displayEventDetails(eventData);
             if (eventData.status === 'open') {
-                generateRegistrationForm(eventData);
+                setupRegistrationFlow(eventData);
                 if (registrationSection) registrationSection.style.display = 'block';
             } else {
                 displayRegistrationClosedMessage();
@@ -57,9 +58,9 @@ function displayNoEventMessage(message = "There are no active events at the mome
 }
 
 function displayRegistrationClosedMessage() {
-    if (registrationSection) registrationSection.style.display = 'block';
-    if (regForm) {
-        regForm.innerHTML = `<div class="registration-closed"><h1>Registrations are currently closed.</h1></div>`;
+    if (registrationSection) {
+        registrationSection.style.display = 'block';
+        registrationSection.innerHTML = `<div class="registration-closed text-center my-5"><h1>Registrations are currently closed.</h1></div>`;
     }
 }
 
@@ -69,95 +70,76 @@ function displayEventDetails(event) {
     }
 }
 
-// --- HELPER FUNCTION TO MANAGE FORM VISIBILITY ---
-function handleTeamSizeChange(maxSize) {
-    const selector = document.getElementById('team-size-selector');
-    if (!selector) return;
-    const selectedSize = parseInt(selector.value, 10);
-    for (let i = 1; i <= maxSize; i++) {
-        const participantBlock = document.getElementById(`participant-block-${i}`);
-        if (participantBlock) {
-            const isVisible = i <= selectedSize;
-            participantBlock.style.display = isVisible ? 'block' : 'none';
-            participantBlock.querySelectorAll('input, select').forEach(input => {
-                if (input.name.endsWith('_ieee_id')) return;
-                if (isVisible) {
-                    input.setAttribute('required', 'required');
-                } else {
-                    input.removeAttribute('required');
-                }
-            });
-        }
+// --- REGISTRATION FLOW SETUP ---
+function setupRegistrationFlow(event) {
+    const audience = event.eventAudience || 'students_only';
+
+    if (audience === 'students_and_faculty') {
+        participantTypeSelector.innerHTML = `
+            <p><strong>Please select your role:</strong></p>
+            <button class="btn btn-primary btn-lg mx-2" id="student-choice-btn">I am a Student</button>
+            <button class="btn btn-secondary btn-lg mx-2" id="faculty-choice-btn">I am a Faculty</button>
+        `;
+        document.getElementById('student-choice-btn').addEventListener('click', () => {
+            generateRegistrationForm(event, 'student');
+        });
+        document.getElementById('faculty-choice-btn').addEventListener('click', () => {
+            generateRegistrationForm(event, 'faculty');
+        });
+    } else if (audience === 'students_only') {
+        generateRegistrationForm(event, 'student');
+    } else if (audience === 'faculty_only') {
+        generateRegistrationForm(event, 'faculty');
     }
 }
 
+function generateCustomQuestions(event, participantCategory) {
+    let customQuestions = [];
+    if (participantCategory === 'student' && event.studentCustomQuestions) {
+        customQuestions = event.studentCustomQuestions;
+    } else if (participantCategory === 'faculty' && event.facultyCustomQuestions) {
+        customQuestions = event.facultyCustomQuestions;
+    }
+    
+    let questionsHTML = '';
+    if (customQuestions && customQuestions.length > 0) {
+        questionsHTML = `<div class="participant"><label class="participant-label">Additional Questions</label><div class="fields">`;
+        customQuestions.forEach((q) => {
+            const fieldName = `custom_q_${q.label.replace(/\s+/g, '_')}`;
+            questionsHTML += `<div class="form-group"><label>${q.label}</label>`;
+            if (q.type === 'text') {
+                questionsHTML += `<input type="text" class="form-control" name="${fieldName}" required>`;
+            } else if (q.type === 'yesno') {
+                questionsHTML += `<select class="form-control" name="${fieldName}" required><option value="" disabled selected>Select an option</option><option value="Yes">Yes</option><option value="No">No</option></select>`;
+            } else if (q.type === 'rating') {
+                questionsHTML += `<select class="form-control" name="${fieldName}" required><option value="" disabled selected>Select a rating (1-10)</option>`;
+                for (let j = 1; j <= 10; j++) questionsHTML += `<option value="${j}">${j}</option>`;
+                questionsHTML += `</select>`;
+            }
+            questionsHTML += `</div>`;
+        });
+        questionsHTML += `</div></div>`;
+    }
+    return questionsHTML;
+}
+
 // --- FORM GENERATION ---
-function generateRegistrationForm(event) {
-    const regFormContainer = document.getElementById('registration-form-container');
+function generateRegistrationForm(event, participantCategory) {
+    participantTypeSelector.style.display = 'none';
+    regForm.style.display = 'block';
+
     let finalHTML = '';
     
-    // Step 1: Build the Participant Details Section
-    const participantLabelText = event.paymentsEnabled ? 'Step 1: Fill Participant Details' : 'Registration Details';
-    let participantHTML = `<div class="participant-header"><label class="participant-label">${participantLabelText}</label></div>`;
-
-    const teamSizeSelectorContainer = document.getElementById('team-size-selector-container');
-    if (event.participationType === 'team' && event.minTeamSize < event.maxTeamSize) {
-        teamSizeSelectorContainer.style.display = 'block';
-        let selectorHTML = `<label for="team-size-selector">First, select your team size (from ${event.minTeamSize} to ${event.maxTeamSize}):</label>
-                            <select id="team-size-selector" class="form-control mb-4">`;
-        for (let i = event.minTeamSize; i <= event.maxTeamSize; i++) {
-            selectorHTML += `<option value="${i}">${i}</option>`;
-        }
-        selectorHTML += '</select>';
-        teamSizeSelectorContainer.innerHTML = selectorHTML;
-    } else {
-        if(teamSizeSelectorContainer) teamSizeSelectorContainer.style.display = 'none';
-    }
-
-    const participantCount = event.participationType === 'team' ? (event.maxTeamSize || 1) : 1;
-    for (let i = 1; i <= participantCount; i++) {
-        participantHTML += `<div class="participant" id="participant-block-${i}">
-                        <label class="participant-label">${(participantCount > 1) ? `Participant ${i}` : 'Your Details'}</label>
-                        <div class="fields">
-                           <div class="row"> <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Name" name="p${i}_name" required></div> <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="College Name" name="p${i}_college" required></div> </div> <div class="row"> <div class="col-sm-4 form-group"><select class="form-control" name="p${i}_year" required><option value="" disabled selected>Select Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div> <div class="col-sm-4 form-group"><select class="form-control" name="p${i}_branch" required><option value="" disabled selected>Select Branch</option><option value="CIVIL">CIVIL</option><option value="CSB">CSB</option><option value="CSC">CSC</option><option value="CSD">CSD</option><option value="CSE">CSE</option><option value="CSM">CSM</option><option value="ECE">ECE</option><option value="EEE">EEE</option><option value="IT">IT</option><option value="MECH">MECH</option><option value="OTHERS">OTHERS</option></select></div> <div class="col-sm-4 form-group"><select class="form-control" name="p${i}_section" required><option value="" disabled selected>Select Section</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="OTHERS">OTHERS</option></select></div> </div> <div class="row"> <div class="col-sm-4 form-group"><input type="text" class="form-control" placeholder="Roll No." name="p${i}_roll" required pattern="[a-zA-Z0-9]{10}" maxlength="10" title="Please enter a 10-character Roll No."></div> <div class="col-sm-4 form-group"><input type="email" class="form-control" placeholder="Email" name="p${i}_email" required></div> <div class="col-sm-4 form-group"><input type="tel" class="form-control" placeholder="Phone No." name="p${i}_phone" required></div> </div> <div class="row"> <div class="col-sm-6 form-group"><select class="form-control" name="p${i}_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div> <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Membership ID (if applicable)" name="p${i}_ieee_id"></div> </div>
-                        </div>
-                     </div>`;
-    }
-
-    // Custom Questions
-    if (event.customQuestions && event.customQuestions.length > 0) {
-        participantHTML += `<div class="participant"><label class="participant-label">Additional Questions</label><div class="fields">`;
-        event.customQuestions.forEach((q) => {
-            const fieldName = `custom_q_${q.label.replace(/\s+/g, '_')}`;
-            participantHTML += `<div class="form-group"><label>${q.label}</label>`;
-            if (q.type === 'text') {
-                participantHTML += `<input type="text" class="form-control" name="${fieldName}" required>`;
-            } else if (q.type === 'yesno') {
-                participantHTML += `<select class="form-control" name="${fieldName}" required><option value="" disabled selected>Select an option</option><option value="Yes">Yes</option><option value="No">No</option></select>`;
-            } else if (q.type === 'rating') {
-                participantHTML += `<select class="form-control" name="${fieldName}" required><option value="" disabled selected>Select a rating (1-10)</option>`;
-                for (let j = 1; j <= 10; j++) participantHTML += `<option value="${j}">${j}</option>`;
-                participantHTML += `</select>`;
-            }
-            participantHTML += `</div>`;
-        });
-        participantHTML += `</div></div>`;
-    }
-    
-    // Step 2: Build the Payment Section if enabled
-    let paymentHTML = '';
     if (event.paymentsEnabled && event.qrCodeURL) {
-        paymentHTML = `
+        finalHTML += `
             <div class="participant">
-                <label class="participant-label">Step 2: Complete Your Payment</label>
+                <label class="participant-label">Step 1: Complete Your Payment</label>
                 <div class="fields text-center">
-                    <div class="payment-instructions">${event.paymentInstructions || ''}</div>
+                    <p class="payment-instructions">${event.paymentInstructions || ''}</p>
                     <h5 class="mt-2"><strong>Event Fee: ₹${event.eventFee}</strong></h5>
                     <img src="${event.qrCodeURL}" alt="Payment QR Code" style="max-width: 250px; border-radius: 8px;" class="mb-3">
                     <div class="row justify-content-center">
-                        <div class="col-md-6 form-group">
-                            <input type="text" class="form-control" placeholder="UPI Transaction ID" name="transactionId" required>
-                        </div>
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" placeholder="UPI Transaction ID" name="transactionId" required></div>
                         <div class="col-md-6 form-group">
                             <label for="paymentScreenshot" class="form-control-label" style="text-align: left; display: block;">Upload Payment Screenshot (Required)</label>
                             <input type="file" class="form-control-file" name="paymentScreenshot" accept="image/*" required>
@@ -168,20 +150,43 @@ function generateRegistrationForm(event) {
         `;
     }
 
-    // Step 3: Combine the sections in the new order
-    finalHTML = participantHTML + paymentHTML;
+    const participantLabelText = event.paymentsEnabled ? 'Step 2: Fill Your Details' : 'Registration Details';
+    let participantHTML = `<div class="participant-header"><label class="participant-label">${participantLabelText}</label></div>`;
     
-    if (regFormContainer) {
-        regFormContainer.innerHTML = finalHTML;
+    participantHTML += `<input type="hidden" name="participantCategory" value="${participantCategory}">`;
+    if (participantCategory === 'student') {
+        participantHTML += `
+            <div class="participant">
+                <label class="participant-label">Student Details</label>
+                <div class="fields">
+                   <div class="row"> <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Name" name="p1_name" required></div> <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="College Name" name="p1_college" required></div> </div> <div class="row"> <div class="col-sm-4 form-group"><select class="form-control" name="p1_year" required><option value="" disabled selected>Select Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div> <div class="col-sm-4 form-group"><select class="form-control" name="p1_branch" required><option value="" disabled selected>Select Branch</option><option value="CIVIL">CIVIL</option><option value="CSB">CSB</option><option value="CSC">CSC</option><option value="CSD">CSD</option><option value="CSE">CSE</option><option value="CSM">CSM</option><option value="ECE">ECE</option><option value="EEE">EEE</option><option value="IT">IT</option><option value="MECH">MECH</option><option value="OTHERS">OTHERS</option></select></div> <div class="col-sm-4 form-group"><select class="form-control" name="p1_section" required><option value="" disabled selected>Select Section</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="OTHERS">OTHERS</option></select></div> </div> <div class="row"> <div class="col-sm-4 form-group"><input type="text" class="form-control" placeholder="Roll No." name="p1_roll" required pattern="[a-zA-Z0-9]{10}" maxlength="10" title="Please enter a 10-character Roll No."></div> <div class="col-sm-4 form-group"><input type="email" class="form-control" placeholder="Email" name="p1_email" required></div> <div class="col-sm-4 form-group"><input type="tel" class="form-control" placeholder="Phone No." name="p1_phone" required></div> </div> <div class="row"> <div class="col-sm-6 form-group"><select class="form-control" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div> <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Membership ID (if applicable)" name="p1_ieee_id"></div> </div>
+                </div>
+             </div>`;
+    } else if (participantCategory === 'faculty') {
+        participantHTML += `
+            <div class="participant">
+                <label class="participant-label">Faculty Details</label>
+                <div class="fields">
+                    <div class="row">
+                        <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Name" name="p1_name" required></div>
+                        <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Department" name="p1_dept" required></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 form-group"><input type="email" class="form-control" placeholder="Email" name="p1_email" required></div>
+                        <div class="col-sm-6 form-group"><input type="tel" class="form-control" placeholder="Phone No." name="p1_phone" required></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 form-group"><select class="form-control" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                        <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Membership ID (if applicable)" name="p1_ieee_id"></div>
+                    </div>
+                </div>
+            </div>`;
     }
-
-    if (event.participationType === 'team' && event.minTeamSize < event.maxTeamSize) {
-        const selector = document.getElementById('team-size-selector');
-        if (selector) {
-            selector.addEventListener('change', () => handleTeamSizeChange(event.maxTeamSize));
-            handleTeamSizeChange(event.maxTeamSize); // Call it once initially
-        }
-    }
+    
+    finalHTML += participantHTML;
+    finalHTML += generateCustomQuestions(event, participantCategory);
+    
+    regFormContainer.innerHTML = finalHTML;
 }
 
 // --- FORM SUBMISSION ---
@@ -210,17 +215,7 @@ if (regForm) {
             }
 
             registrationData.timeStamp = firebase.firestore.FieldValue.serverTimestamp();
-            
-            let participantCount;
-            const teamSizeSelector = document.getElementById('team-size-selector');
-            if (teamSizeSelector && teamSizeSelector.offsetParent !== null) {
-                participantCount = parseInt(teamSizeSelector.value, 10);
-            } else if (eventData.participationType === 'team') {
-                participantCount = eventData.maxTeamSize;
-            } else {
-                participantCount = 1;
-            }
-            registrationData.participantCount = participantCount;
+            registrationData.participantCount = 1;
 
             if (eventData.paymentsEnabled) {
                 const screenshotFile = formData.get('paymentScreenshot');
@@ -234,22 +229,24 @@ if (regForm) {
                 registrationData.verificationStatus = 'not-required';
             }
             
-            const collectionSuffix = eventData.participationType === 'team' ? 'Teams' : 'Participants';
+            const collectionSuffix = 'Participants';
             const collectionName = `${eventData.eventName.replace(/\s+/g, '')}${collectionSuffix}`;
             const mailCollectionName = `${eventData.eventName.replace(/\s+/g, '')}Mails`;
 
             await db.collection(collectionName).add(registrationData);
             
-            const emails = [];
-            let names = [];
-            for (let i = 1; i <= participantCount; i++) {
-                if (registrationData[`p${i}_email`]) emails.push(registrationData[`p${i}_email`]);
-                if (registrationData[`p${i}_name`]) names.push(registrationData[`p${i}_name`]);
-            }
-            
+            const emails = [registrationData.p1_email];
+            let names = [registrationData.p1_name];
+
             const mailSubject = `Registration Received for ${eventData.eventName} | IEEE - VBIT SB`;
             let mailBody = eventData.emailTemplate.replace(/{name}/g, names.join(' & ')).replace(/{eventName}/g, eventData.eventName);
-            await db.collection(mailCollectionName).add({ to: emails, message: { subject: mailSubject, html: mailBody } });
+            await db.collection(mailCollectionName).add({ 
+                to: emails, 
+                message: { 
+                    subject: mailSubject,
+                    html: mailBody     
+                } 
+            });
 
             const successTitle = eventData.paymentsEnabled ? 'Registration Submitted!' : 'Registration Successful!';
             const successText = eventData.paymentsEnabled 
