@@ -211,6 +211,8 @@ async function populateFormForEdit(eventId) {
                 document.getElementById('current-qr-container').style.display = 'block';
                 document.getElementById('current-qr-img').src = event.qrCodeURL;
             }
+            document.getElementById('payeeName').value = event.payeeName || '';
+            document.getElementById('upiId').value = event.upiId || '';
         }
 
         document.getElementById('emailContent').value = event.emailTemplate || '';
@@ -368,6 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 paymentsEnabled: document.getElementById('enablePayments').checked,
                 eventFee: document.getElementById('eventFee').value,
                 paymentInstructions: document.getElementById('paymentInstructions').value,
+                payeeName: document.getElementById('payeeName').value,
+                upiId: document.getElementById('upiId').value,
             };
             
             const eventPosterFile = document.getElementById('eventPoster').files[0];
@@ -414,7 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     successMessage.textContent = `Success! Event "${eventData.eventName}" has been created.`;
                     successMessage.style.display = 'block';
                     eventForm.reset();
-                    // Clear the question containers specifically
                     document.getElementById('student-questions-container').innerHTML = '';
                     document.getElementById('faculty-questions-container').innerHTML = '';
                     participationType.dispatchEvent(new Event('change'));

@@ -131,6 +131,16 @@ function generateRegistrationForm(event, participantCategory) {
     let finalHTML = '';
     
     if (event.paymentsEnabled && event.qrCodeURL) {
+        let upiLinkHTML = '';
+        if (event.upiId && event.payeeName && event.eventFee > 0) {
+            const transactionNote = encodeURIComponent(`Registration for ${event.eventName}`);
+            const payeeName = encodeURIComponent(event.payeeName);
+            const upiUrl = `upi://pay?pa=${event.upiId}&pn=${payeeName}&am=${event.eventFee}&cu=INR&tn=${transactionNote}`;
+            // =========== MODIFIED LINE START ===========
+            upiLinkHTML = `<a href="${upiUrl}" class="btn btn-success btn-lg mt-3 mb-2 upi-pay-button" style="width: 100%; max-width: 250px;">Tap to Pay with UPI</a>`;
+            // =========== MODIFIED LINE END ===========
+        }
+        
         finalHTML += `
             <div class="participant">
                 <label class="participant-label">Step 1: Complete Your Payment</label>
@@ -138,7 +148,8 @@ function generateRegistrationForm(event, participantCategory) {
                     <p class="payment-instructions">${event.paymentInstructions || ''}</p>
                     <h5 class="mt-2"><strong>Event Fee: ₹${event.eventFee}</strong></h5>
                     <img src="${event.qrCodeURL}" alt="Payment QR Code" style="max-width: 250px; border-radius: 8px;" class="mb-3">
-                    <div class="row justify-content-center">
+                    ${upiLinkHTML}
+                    <div class="row justify-content-center mt-3">
                         <div class="col-md-6 form-group"><input type="text" class="form-control" placeholder="UPI Transaction ID" name="transactionId" required></div>
                         <div class="col-md-6 form-group">
                             <label for="paymentScreenshot" class="form-control-label" style="text-align: left; display: block;">Upload Payment Screenshot (Required)</label>
@@ -186,7 +197,9 @@ function generateRegistrationForm(event, participantCategory) {
     finalHTML += participantHTML;
     finalHTML += generateCustomQuestions(event, participantCategory);
     
-    regFormContainer.innerHTML = finalHTML;
+    if (regFormContainer) {
+        regFormContainer.innerHTML = finalHTML;
+    }
 }
 
 // --- FORM SUBMISSION ---
@@ -237,14 +250,14 @@ if (regForm) {
             
             const emails = [registrationData.p1_email];
             let names = [registrationData.p1_name];
-
+            
             const mailSubject = `Registration Received for ${eventData.eventName} | IEEE - VBIT SB`;
             let mailBody = eventData.emailTemplate.replace(/{name}/g, names.join(' & ')).replace(/{eventName}/g, eventData.eventName);
             await db.collection(mailCollectionName).add({ 
                 to: emails, 
                 message: { 
                     subject: mailSubject,
-                    html: mailBody     
+                    html: mailBody
                 } 
             });
 
