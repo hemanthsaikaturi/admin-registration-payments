@@ -2,9 +2,8 @@
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 } else {
-  firebase.app(); // if already initialized, use that one
+  firebase.app();
 }
-
 // FIX: Renamed 'auth' to 'loginAuth' to avoid conflicts with other pages.
 const loginAuth = firebase.auth();
 

@@ -1,8 +1,8 @@
 /* --- GLOBAL & TYPOGRAPHY --- */
 html {
+    scroll-behavior: smooth;
     height: 100%;
 }
-
 body {
     min-height: 100%; 
     display: flex;
@@ -12,17 +12,14 @@ body {
     color: #333;
     line-height: 1.6;
 }
-
 #content {
     flex-grow: 1; 
     display: flex;
     flex-direction: column;
 }
-
 #content > .container {
     flex-grow: 1; 
 }
-
 h2 {
     font-weight: 600;
     color: #003e6b; 
@@ -33,7 +30,6 @@ header.container {
     padding: 30px 0;
     text-align: center;
 }
-
 img.logo {
     max-width: 150px; 
     height: auto;
@@ -47,19 +43,16 @@ section.about {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     margin-bottom: 40px;
 }
-
 .section-header {
     text-align: center;
     margin-bottom: 30px;
 }
-
 .section-header h2 {
     display: inline-block;
     position: relative;
     padding-bottom: 10px;
     margin-bottom: 0;
 }
-
 .section-header h2::after {
     content: '';
     position: absolute;
@@ -79,7 +72,6 @@ section.about {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
 }
-
 .event-description p {
     font-size: 1.1rem;
     color: #555;
@@ -90,14 +82,12 @@ section.about {
 #registration-section {
     margin-top: -20px; 
 }
-
 .participant {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 25px;
     margin-bottom: 25px;
 }
-
 .participant-label {
     font-size: 1.2rem;
     font-weight: 500;
@@ -107,7 +97,6 @@ section.about {
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
 }
-
 .form-control {
     border-radius: 6px;
     border: 1px solid #ced4da;
@@ -115,14 +104,11 @@ section.about {
     padding: 0.5rem 1rem;
     transition: all 0.3s ease-in-out;
 }
-
 .form-control:focus {
     border-color: #00629b;
     box-shadow: 0 0 0 0.2rem rgba(0, 98, 155, 0.25);
     transform: translateY(-2px);
 }
-
-/* Submit Button */
 .submit.btn1 {
     background-color: #00629b;
     color: #fff;
@@ -136,20 +122,17 @@ section.about {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 98, 155, 0.2);
 }
-
 .submit.btn1:hover {
     background-color: #003e6b;
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0, 62, 107, 0.3);
 }
-
 .submit.btn1:disabled {
     background-color: #6c757d;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
 }
-
 .registration-closed h1 {
     text-align: center;
     color: #888;
@@ -166,20 +149,17 @@ section.about {
     flex-direction: column; 
     align-items: center;
 }
-
 .footer .row {
     width: 100%;
     justify-content: center;
     margin-bottom: 10px;
 }
-
 .footer .social-icons a {
     color: #adb5bd;
     margin: 0 12px;
     font-size: 1.5rem;
     transition: color 0.3s ease;
 }
-
 .footer .social-icons a:hover {
     color: #fff;
 }
@@ -198,7 +178,6 @@ section.about {
     z-index: 9999;
     transition: opacity 1s ease, visibility 1s ease; 
 }
-
 #preloader .spinner {
     border: 8px solid #f3f3f3; 
     border-top: 8px solid #00629b; 
@@ -208,12 +187,10 @@ section.about {
     animation: spin 1s linear infinite;
     position: relative;
 }
-
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
-
 #preloader-logo {
     position: absolute;
     top: 50%;
@@ -224,7 +201,6 @@ section.about {
     z-index: 2; 
     animation: pulse 1.5s infinite ease-in-out;
 }
-
 @keyframes pulse {
     0%, 100% {
         transform: translate(-50%, -50%) scale(1);
@@ -236,9 +212,32 @@ section.about {
     }
 }
 
-/* This rule targets screens wider than 768px (tablets in landscape and desktops) */
 @media (min-width: 769px) {
     .upi-pay-button {
         display: none !important;
+    }
+}
+
+@media (max-width: 576px) {
+    section.about {
+        padding: 20px 15px;
+    }
+    .main-poster .img {
+        border-radius: 0;
+        margin-left: -15px;
+        margin-right: -15px;
+        width: calc(100% + 30px);
+        max-width: calc(100% + 30px);
+    }
+    
+    #participant-type-selector .btn {
+        display: block;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    .participant {
+        padding: 15px;
     }
 }
