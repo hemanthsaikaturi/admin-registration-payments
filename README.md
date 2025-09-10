@@ -1,2 +1,132 @@
-Registration Website - 2
+Registration Website - 2(2.1)
+Branch Main
 QR Based payments
+
+# IEEE VBIT SB - Dynamic Event Registration Portal (QR Code Version)
+
+## 1. Project Overview
+
+This version of the project uses a **QR Code and Manual Verification** system for paid events.
+
+### Key Features
+
+*   **Dynamic Event Management:** Admins can create, edit, activate, and close registrations for events without touching any code.
+*   **Flexible Registration Forms:**
+    *   Supports different registration forms for **Students** and **Faculty**.
+    *   Allows for unique, separate custom questions for both students and faculty per event.
+*   **Manual Payment System (QR Code):**
+    *   Admins can enable payments by providing a fee, a payment QR code, and instructions.
+    *   Users submit a transaction ID and a payment screenshot as proof of payment.
+*   **Admin Verification Workflow:** A dedicated "View Registrations" page allows admins to see all submissions, view payment screenshots, and manually verify payments.
+*   **Two-Step Email Confirmations:** Uses the "Trigger Email" Firebase Extension to send:
+    1.  An initial "pending verification" email upon submission.
+    2.  A final "payment confirmed" email after an admin clicks "Verify."
+*   **Secure Admin Dashboard:** A password-protected area for all event management tasks.
+
+---
+
+## 2. Tech Stack
+
+*   **Frontend:** HTML5, CSS3, JavaScript (ES6+)
+*   **UI Framework:** Bootstrap 4
+*   **Backend & Database:** **Firebase** (Serverless)
+    *   **Authentication:** Firebase Auth for secure admin login.
+    *   **Database:** Cloud Firestore (NoSQL) for storing all event and registration data.
+    *   **Storage:** Firebase Storage for hosting event posters, QR codes, and user-uploaded payment screenshots.
+*   **Data Export:** Google Apps Script for pulling registration data from Firestore into a Google Sheet.
+
+---
+
+## 3. Prerequisites
+
+Before you begin, you will need the following:
+
+1.  **Firebase Account:** You must be granted "Editor" access to the project on the [Firebase Console](https://console.firebase.google.com/).
+2.  **Google Account:** For using the Google Apps Script to export data.
+
+---
+
+## 3. Project Setup (For Local Development)
+
+This is a static frontend application. The setup is very simple.
+
+1.  **Get the Code:** Unzip the project folder to a location on your computer.
+
+2.  **Update Firebase Configuration:**
+    *   Open `Assets/Scripts/config.js`.
+    *   Ensure the Firebase configuration object contains the correct API keys and project ID.
+
+3.  **Run Locally:**
+    *   The easiest way to run the project is with the **Live Server** extension in Visual Studio Code.
+    *   Right-click the main `index.html` file in the root of the project and select "Open with Live Server".
+
+---
+
+## 4. Firebase Configuration
+
+### Firestore Security Rules
+
+The database is protected by rules that only allow specific actions. These are configured in the **Firebase Console > Firestore Database > Rules**.
+
+```javascript
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Rule for Events & Past Events collections
+    match /(events|pastEvents)/{eventId} {
+      allow read: if true;
+      allow write, delete: if request.auth != null;
+    }
+    
+    // Rule for ALL OTHER collections (Registrations, Mail Queue, etc.)
+    match /{collection}/{docId} {
+      allow create: if true; // Allows anyone to register
+      allow read, update: if request.auth != null; // Allows admin to read/verify
+      allow delete: if false; // Protects against accidental deletion
+    }
+  }
+}
+```
+
+### Storage Security Rules
+
+File storage is also protected. These are configured in **Firebase Console > Storage > Rules**.
+
+```javascript
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Rule for admin-uploaded assets
+    match /(event_posters|past_event_posters|qr_codes)/{imageId=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Rule for user-uploaded screenshots
+    match /screenshots/{screenshotId=**} {
+      allow write: if true; // Allows anyone to upload
+      allow read: if request.auth != null; // Only admin can view
+    }
+  }
+}
+```
+
+## 5. Google Apps Script for Data Export
+
+To export registration data to a Google Sheet:
+
+1.  Create a new Google Sheet.
+2.  Go to **Extensions > Apps Script**.
+3.  Paste the provided Apps Script code into the `Code.gs` file.
+4.  To paste the AppScrit.json content initially we need to enable Show 'appsscript.json' manifest file in editor under Project settings, this is important to route the project location to retrieve of data in database.
+6.  **Configure the Script:**
+    *   Update the `FIREBASE_PROJECT_ID` at the top of the script to match your Firebase project.
+    *   For each event, update the `FIRESTORE_COLLECTION` to match the collection name generated by the website (e.g., `MyEventNameParticipants`).
+7.  **Run the script:**
+    *   From the Google Sheet, go to the menu **Firebase Importer > Import Registrations**.
+    *   The first time you run it, a pop-up will appear asking for authorization. **You must grant the script permission** to connect to external services and manage your spreadsheets.
+    *   After authorization, the script will run and import the data.
