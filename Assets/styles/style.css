@@ -138,6 +138,71 @@ section.about {
     color: #888;
 }
 
+/* --- CUSTOM FILE UPLOAD & UPI BUTTON --- */
+input[name="paymentScreenshot"] {
+    display: none;
+}
+.custom-file-upload {
+    background-color: #00629b;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    display: inline-block;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+    width: 100%;
+    text-align: center;
+}
+.custom-file-upload:hover {
+    background-color: #005082;
+    color: white;
+    text-decoration: none;
+}
+.file-chosen-text {
+    margin-top: 8px;
+    font-style: italic;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+.upi-pay-button {
+    display: inline-flex; 
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-family: inherit;
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white !important;
+    padding: 6px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-bottom: 1rem;
+}
+.upi-pay-button:hover {
+    color: white !important;
+    background-color: #218838;
+    text-decoration: none;
+}
+.upi-button-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+.upi-button-text .line-1 {
+    font-size: 0.8em;
+    font-weight: 400;
+}
+.upi-button-text .line-2 {
+    font-size: 1.05em;
+    font-weight: 600;
+}
+.upi-pay-button img {
+    height: 62px;
+}
+
 /* --- FOOTER STYLING --- */
 .footer {
     background-color: #343a40;

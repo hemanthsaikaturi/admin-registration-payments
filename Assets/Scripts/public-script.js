@@ -134,12 +134,22 @@ function generateRegistrationForm(event, participantCategory) {
     if (event.paymentsEnabled && event.qrCodeURL) {
         const fee = participantCategory === 'student' ? (event.studentFee || 0) : (event.facultyFee || 0);
         
+        // Using the simple, reliable path to your local PNG file.
+        const upiLogoUrl = 'Assets/images/upi-logo.png'; 
+        
         let upiLinkHTML = '';
         if (event.upiId && event.payeeName && fee > 0) {
             const transactionNote = encodeURIComponent(`Registration for ${event.eventName}`);
             const payeeName = encodeURIComponent(event.payeeName);
             const upiUrl = `upi://pay?pa=${event.upiId}&pn=${payeeName}&am=${fee}&cu=INR&tn=${transactionNote}`;
-            upiLinkHTML = `<a href="${upiUrl}" class="btn btn-success btn-lg mt-3 mb-2 upi-pay-button" style="width: 100%; max-width: 250px;">Tap to Pay with UPI</a>`;
+            upiLinkHTML = `
+                <a href="${upiUrl}" class="upi-pay-button">
+                    <div class="upi-button-text">
+                        <span class="line-1">Tap to Pay with</span>
+                        <span class="line-2">UPI</span>
+                    </div>
+                    <img src="${upiLogoUrl}" alt="UPI Logo">
+                </a>`;
         }
         
         finalHTML += `
@@ -153,8 +163,11 @@ function generateRegistrationForm(event, participantCategory) {
                     <div class="row justify-content-center mt-3">
                         <div class="col-md-6 form-group"><input type="text" class="form-control" placeholder="UPI Transaction ID" name="transactionId" required></div>
                         <div class="col-md-6 form-group">
-                            <label for="paymentScreenshot" class="form-control-label" style="text-align: left; display: block;">Upload Payment Screenshot (Required)</label>
-                            <input type="file" class="form-control-file" name="paymentScreenshot" accept="image/*" required>
+                             <label for="paymentScreenshot" class="custom-file-upload">
+                                Upload payment screenshot <i class="fa fa-camera"></i>
+                            </label>
+                            <input id="paymentScreenshot" type="file" name="paymentScreenshot" accept="image/*" required>
+                            <div id="file-chosen" class="file-chosen-text">*No file selected</div>
                         </div>
                     </div>
                 </div>
@@ -205,6 +218,18 @@ function generateRegistrationForm(event, participantCategory) {
 
 // --- FORM SUBMISSION ---
 if (regForm) {
+    regForm.addEventListener('change', (e) => {
+        if (e.target.matches('input[name="paymentScreenshot"]')) {
+            const fileInput = e.target;
+            const fileChosenDisplay = document.getElementById('file-chosen');
+            if (fileInput.files.length > 0) {
+                fileChosenDisplay.textContent = fileInput.files[0].name;
+            } else {
+                fileChosenDisplay.textContent = '*No file selected';
+            }
+        }
+    });
+
     regForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const submitButton = document.getElementById("submit-button");
@@ -283,7 +308,7 @@ if (regForm) {
             });
         } catch (error) {
             console.error("Error submitting registration:", error);
-            Swal.fire("Submission Error", "There was an error submitting your registration. Please try again.", "error");
+            Swal.fire("Submission Error", "There was an an error submitting your registration. Please try again.", "error");
         } finally {
             if (submitButton) {
                 submitButton.disabled = false;
