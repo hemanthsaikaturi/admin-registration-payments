@@ -76,10 +76,13 @@ function setupRegistrationFlow(event) {
 
     if (audience === 'students_and_faculty') {
         participantTypeSelector.style.display = 'block';
+        // Updated HTML Structure for easier styling
         participantTypeSelector.innerHTML = `
             <p><strong>Please select your role:</strong></p>
-            <button class="btn btn-primary btn-lg mx-2" id="student-choice-btn">I am a Student</button>
-            <button class="btn btn-secondary btn-lg mx-2" id="faculty-choice-btn">I am a Faculty</button>
+            <div class="role-selection-buttons">
+                <button class="btn btn-primary btn-lg" id="student-choice-btn">I am a Student</button>
+                <button class="btn btn-secondary btn-lg" id="faculty-choice-btn">I am a Faculty</button>
+            </div>
         `;
         document.getElementById('student-choice-btn').addEventListener('click', () => {
             generateRegistrationForm(event, 'student');
@@ -134,8 +137,7 @@ function generateRegistrationForm(event, participantCategory) {
     if (event.paymentsEnabled && event.qrCodeURL) {
         const fee = participantCategory === 'student' ? (event.studentFee || 0) : (event.facultyFee || 0);
         
-        // Using the simple, reliable path to your local PNG file.
-        const upiLogoUrl = 'Assets/images/upi-logo.png'; 
+        const upiLogoPngUri = 'Assets/images/upi-logo.png';
         
         let upiLinkHTML = '';
         if (event.upiId && event.payeeName && fee > 0) {
@@ -148,7 +150,7 @@ function generateRegistrationForm(event, participantCategory) {
                         <span class="line-1">Tap to Pay with</span>
                         <span class="line-2">UPI</span>
                     </div>
-                    <img src="${upiLogoUrl}" alt="UPI Logo">
+                    <img src="${upiLogoPngUri}" alt="UPI Logo">
                 </a>`;
         }
         
