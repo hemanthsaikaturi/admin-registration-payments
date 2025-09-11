@@ -107,10 +107,16 @@
             </div>
             <div id="payment-details-container" style="display: none;" class="border p-3 rounded mb-3 bg-light">
                 <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="eventFee">Event Fee (e.g., 150)</label>
-                        <input type="number" class="form-control" id="eventFee" placeholder="Enter amount in INR">
+                    <div class="form-group col-md-6" id="student-fee-wrapper">
+                        <label for="studentFee">Student Fee (e.g., 100)</label>
+                        <input type="number" class="form-control" id="studentFee" placeholder="Fee in INR">
                     </div>
+                    <div class="form-group col-md-6" id="faculty-fee-wrapper">
+                        <label for="facultyFee">Faculty Fee (e.g., 200)</label>
+                        <input type="number" class="form-control" id="facultyFee" placeholder="Fee in INR">
+                    </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="qrCodeImage">Payment QR Code Image</label>
                         <input type="file" class="form-control-file" id="qrCodeImage" accept="image/*">
@@ -131,7 +137,7 @@
                 </div>
                 <div class="form-group">
                     <label for="paymentInstructions">Payment Instructions</label>
-                    <textarea class="form-control" id="paymentInstructions" rows="3" placeholder="e.g., 1. Scan QR or Tap button. 2. Copy the UPI Transaction ID..."></textarea>
+                    <textarea class="form-control" id="paymentInstructions" rows="3" placeholder="e.g., 1. Tap the button below (on mobile) or scan the QR. 2. Complete the payment. 3. Copy the UPI Transaction ID and upload a screenshot before submitting."></textarea>
                 </div>
             </div>
 
