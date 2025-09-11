@@ -235,7 +235,7 @@ input[name="paymentScreenshot"] {
 .footer {
     background-color: #343a40;
     color: #adb5bd;
-    padding: 20px 0;
+    padding: 20px 10px;
     width: 100%;
     text-align: center;
     display: flex;
