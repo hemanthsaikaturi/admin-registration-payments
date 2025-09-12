@@ -149,22 +149,22 @@ section.about {
     transform: translateY(-2px);
 }
 .submit.btn1 {
-    background-color: #00629b;
+    background-color: #003e6b; /* Darker blue color */
     color: #fff;
     border: none;
-    border-radius: 50px; 
+    border-radius: 12px;
     padding: 12px 40px;
     font-weight: 600;
     letter-spacing: 0.5px;
     display: block;
     margin: 20px auto 0;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 98, 155, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 62, 107, 0.25);
 }
 .submit.btn1:hover {
-    background-color: #003e6b;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 62, 107, 0.3);
+    background-color: #002c4d;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 44, 77, 0.3);
 }
 .submit.btn1:disabled {
     background-color: #6c757d;
@@ -246,7 +246,7 @@ input[name="paymentScreenshot"] {
 .footer {
     background-color: #343a40;
     color: #adb5bd;
-    padding: 20px 0;
+    padding: 20px 15px;
     width: 100%;
     text-align: center;
     display: flex;
