@@ -202,7 +202,8 @@ input[name="paymentScreenshot"] {
 .file-chosen-text {
     margin-top: 8px;
     font-style: italic;
-    color: #6c757d;
+    color: #005082;
+    font-weight: 500;
     font-size: 0.9rem;
 }
 .upi-pay-button {
@@ -246,7 +247,7 @@ input[name="paymentScreenshot"] {
 .footer {
     background-color: #343a40;
     color: #adb5bd;
-    padding: 20px 35px;
+    padding: 20px 15px;
     width: 100%;
     text-align: center;
     display: flex;
