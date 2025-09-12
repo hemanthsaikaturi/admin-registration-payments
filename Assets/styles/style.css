@@ -80,18 +80,18 @@ section.about {
 
 /* --- ROLE SELECTION BUTTONS --- */
 #participant-type-selector {
-    text-align: center; /* Ensures the "Please select your role" text is centered */
+    text-align: center;
 }
 .role-selection-buttons {
     display: flex;
     flex-direction: column;
-    align-items: center; /* This centers the buttons horizontally */
-    gap: 15px; /* Adds space between the buttons */
+    align-items: center; 
+    gap: 15px;
     margin-top: 1rem;
 }
 #participant-type-selector .btn {
-    width: 90%; /* Buttons take up most of the container width */
-    max-width: 400px; /* But not more than 400px on wider screens */
+    width: 90%; 
+    max-width: 400px; 
     padding: 12px;
     font-size: 1.1rem;
     font-weight: 600;
@@ -103,6 +103,17 @@ section.about {
 }
 #participant-type-selector .btn-secondary {
     background-color: #5A6268;
+}
+
+/* --- FORM ANIMATION --- */
+#public-reg-form {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+#public-reg-form.is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 
@@ -191,7 +202,7 @@ input[name="paymentScreenshot"] {
 .file-chosen-text {
     margin-top: 8px;
     font-style: italic;
-    color: #00629B;
+    color: #6c757d;
     font-size: 0.9rem;
 }
 .upi-pay-button {
@@ -235,7 +246,7 @@ input[name="paymentScreenshot"] {
 .footer {
     background-color: #343a40;
     color: #adb5bd;
-    padding: 20px 30px;
+    padding: 20px 0;
     width: 100%;
     text-align: center;
     display: flex;

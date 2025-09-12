@@ -76,7 +76,6 @@ function setupRegistrationFlow(event) {
 
     if (audience === 'students_and_faculty') {
         participantTypeSelector.style.display = 'block';
-        // Updated HTML Structure for easier styling
         participantTypeSelector.innerHTML = `
             <p><strong>Please select your role:</strong></p>
             <div class="role-selection-buttons">
@@ -130,14 +129,14 @@ function generateCustomQuestions(event, participantCategory) {
 // --- FORM GENERATION ---
 function generateRegistrationForm(event, participantCategory) {
     participantTypeSelector.style.display = 'none';
-    regForm.style.display = 'block';
+    regForm.style.display = 'block'; // Make the form container visible
 
     let finalHTML = '';
     
     if (event.paymentsEnabled && event.qrCodeURL) {
         const fee = participantCategory === 'student' ? (event.studentFee || 0) : (event.facultyFee || 0);
-        
-        const upiLogoPngUri = 'Assets/images/upi-logo.png';
+
+        const upiLogoUrl = 'Assets/images/upi-logo.png'; 
         
         let upiLinkHTML = '';
         if (event.upiId && event.payeeName && fee > 0) {
@@ -150,7 +149,7 @@ function generateRegistrationForm(event, participantCategory) {
                         <span class="line-1">Tap to Pay with</span>
                         <span class="line-2">UPI</span>
                     </div>
-                    <img src="${upiLogoPngUri}" alt="UPI Logo">
+                    <img src="${upiLogoUrl}" alt="UPI Logo">
                 </a>`;
         }
         
@@ -215,6 +214,11 @@ function generateRegistrationForm(event, participantCategory) {
     
     if (regFormContainer) {
         regFormContainer.innerHTML = finalHTML;
+
+        // This triggers the animation
+        setTimeout(() => {
+            regForm.classList.add('is-visible');
+        }, 10);
     }
 }
 
