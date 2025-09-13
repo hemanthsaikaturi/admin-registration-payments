@@ -223,7 +223,6 @@ select.form-control:valid {
     flex-direction: column;
     align-items: center;
 }
-/* --- THIS IS THE FIX --- */
 input[name="paymentScreenshot"] {
     position: absolute;
     width: 1px;
@@ -370,6 +369,55 @@ input[name="paymentScreenshot"] {
         transform: translate(-50%, -50%) scale(1.1);
         opacity: 0.9;
     }
+}
+
+/* --- NEW SOCIAL CONNECT SECTION --- */
+.social-connect-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+.social-link-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 25px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 12px 12px 30px 12px; /* Custom shape */
+    color: #343a40;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+.social-link-card:hover {
+    color: #00629b;
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 98, 155, 0.1);
+    text-decoration: none;
+}
+.social-link-card i {
+    font-size: 2rem;
+    color: #00629b;
+}
+.social-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+.social-text .title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+.social-text .subtitle {
+    font-size: 0.85rem;
+    color: #6c757d;
 }
 
 @media (min-width: 769px) {
