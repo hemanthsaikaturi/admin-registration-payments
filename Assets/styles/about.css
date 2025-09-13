@@ -121,10 +121,21 @@ section {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 98, 155, 0.2);
 }
+
+/* --- NEW STYLE FOR 'REGISTER FOR ANOTHER EVENT' BUTTON --- */
+.new-reg-btn {
+    background-color: #1976D2; /* Brighter blue */
+    width: 100%;
+    max-width: 600px;
+}
+.new-reg-btn:hover {
+    background-color: #1565C0; /* Darker blue on hover */
+}
+
 .footer {
     background-color: #343a40;
     color: #adb5bd;
-    padding: 30px 0;
+    padding: 30px 15px;
     text-align: center;
 }
 .footer .row {
@@ -132,27 +143,13 @@ section {
     display: flex;
     justify-content: center;
 }
-.footer .social-icons a {
-    color: #adb5bd;
-    margin: 0 12px;
-    font-size: 1.5rem;
-    transition: color 0.3s ease, transform 0.3s ease;
-}
-.footer .social-icons a:hover {
-    color: #fff;
-    transform: scale(1.1);
-}
 
 /* ============== NEW PAGE LOAD ANIMATION ============== */
-
-/* The starting state of our animated elements: invisible and moved down */
 .fade-in-up {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
-
-/* The final state of our animated elements: fully visible and in their original position */
 .fade-in-up.is-visible {
     opacity: 1;
     transform: translateY(0);
