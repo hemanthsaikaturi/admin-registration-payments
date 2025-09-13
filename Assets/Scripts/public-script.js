@@ -107,19 +107,21 @@ function generateCustomQuestions(event, participantCategory) {
     let questionsHTML = '';
     if (customQuestions && customQuestions.length > 0) {
         questionsHTML = `<div class="participant"><label class="participant-label">Additional Questions</label><div class="fields">`;
-        customQuestions.forEach((q) => {
+        customQuestions.forEach((q, i) => {
+            const fieldId = `custom_q_${i}`;
             const fieldName = `custom_q_${q.label.replace(/\s+/g, '_')}`;
-            questionsHTML += `<div class="form-group"><label>${q.label}</label>`;
+            
             if (q.type === 'text') {
-                questionsHTML += `<input type="text" class="form-control" name="${fieldName}" required>`;
-            } else if (q.type === 'yesno') {
-                questionsHTML += `<select class="form-control" name="${fieldName}" required><option value="" disabled selected>Select an option</option><option value="Yes">Yes</option><option value="No">No</option></select>`;
-            } else if (q.type === 'rating') {
-                questionsHTML += `<select class="form-control" name="${fieldName}" required><option value="" disabled selected>Select a rating (1-10)</option>`;
-                for (let j = 1; j <= 10; j++) questionsHTML += `<option value="${j}">${j}</option>`;
-                questionsHTML += `</select>`;
+                questionsHTML += `<div class="floating-label"><input type="text" class="form-control" id="${fieldId}" name="${fieldName}" placeholder=" " required><label for="${fieldId}">${q.label}</label></div>`;
+            } else { 
+                questionsHTML += `<div class="form-group"><select class="form-control" id="${fieldId}" name="${fieldName}" required><option value="" disabled selected>${q.label}</option>`;
+                if (q.type === 'yesno') {
+                    questionsHTML += `<option value="Yes">Yes</option><option value="No">No</option>`;
+                } else if (q.type === 'rating') {
+                    for (let j = 1; j <= 10; j++) questionsHTML += `<option value="${j}">${j}</option>`;
+                }
+                questionsHTML += `</select></div>`;
             }
-            questionsHTML += `</div>`;
         });
         questionsHTML += `</div></div>`;
     }
@@ -129,13 +131,13 @@ function generateCustomQuestions(event, participantCategory) {
 // --- FORM GENERATION ---
 function generateRegistrationForm(event, participantCategory) {
     participantTypeSelector.style.display = 'none';
-    regForm.style.display = 'block'; // Make the form container visible
+    regForm.style.display = 'block';
 
     let finalHTML = '';
     
     if (event.paymentsEnabled && event.qrCodeURL) {
         const fee = participantCategory === 'student' ? (event.studentFee || 0) : (event.facultyFee || 0);
-
+        
         const upiLogoUrl = 'Assets/images/upi-logo.png'; 
         
         let upiLinkHTML = '';
@@ -156,14 +158,19 @@ function generateRegistrationForm(event, participantCategory) {
         finalHTML += `
             <div class="participant">
                 <label class="participant-label">Step 1: Complete Your Payment</label>
-                <div class="fields text-center">
+                <div class="payment-details-container">
                     <p class="payment-instructions">${event.paymentInstructions || ''}</p>
                     <h5 class="mt-2"><strong>Event Fee: ₹${fee}</strong></h5>
-                    <img src="${event.qrCodeURL}" alt="Payment QR Code" style="max-width: 250px; border-radius: 8px;" class="mb-3">
+                    <img src="${event.qrCodeURL}" alt="Payment QR Code" style="max-width: 220px; border-radius: 8px;" class="mb-3">
                     ${upiLinkHTML}
-                    <div class="row justify-content-center mt-3">
-                        <div class="col-md-6 form-group"><input type="text" class="form-control" placeholder="UPI Transaction ID" name="transactionId" required></div>
-                        <div class="col-md-6 form-group">
+                    <div class="row w-100">
+                        <div class="col-md-6">
+                             <div class="floating-label">
+                                <input type="text" class="form-control" id="transactionId" name="transactionId" placeholder=" " required>
+                                <label for="transactionId">UPI Transaction ID</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
                              <label for="paymentScreenshot" class="custom-file-upload">
                                 Upload payment screenshot <i class="fa fa-camera"></i>
                             </label>
@@ -185,7 +192,24 @@ function generateRegistrationForm(event, participantCategory) {
             <div class="participant">
                 <label class="participant-label">Student Details</label>
                 <div class="fields">
-                   <div class="row"> <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Name" name="p1_name" required></div> <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="College Name" name="p1_college" required></div> </div> <div class="row"> <div class="col-sm-4 form-group"><select class="form-control" name="p1_year" required><option value="" disabled selected>Select Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div> <div class="col-sm-4 form-group"><select class="form-control" name="p1_branch" required><option value="" disabled selected>Select Branch</option><option value="CIVIL">CIVIL</option><option value="CSB">CSB</option><option value="CSC">CSC</option><option value="CSD">CSD</option><option value="CSE">CSE</option><option value="CSM">CSM</option><option value="ECE">ECE</option><option value="EEE">EEE</option><option value="IT">IT</option><option value="MECH">MECH</option><option value="OTHERS">OTHERS</option></select></div> <div class="col-sm-4 form-group"><select class="form-control" name="p1_section" required><option value="" disabled selected>Select Section</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="OTHERS">OTHERS</option></select></div> </div> <div class="row"> <div class="col-sm-4 form-group"><input type="text" class="form-control" placeholder="Roll No." name="p1_roll" required pattern="[a-zA-Z0-9]{10}" maxlength="10" title="Please enter a 10-character Roll No."></div> <div class="col-sm-4 form-group"><input type="email" class="form-control" placeholder="Email" name="p1_email" required></div> <div class="col-sm-4 form-group"><input type="tel" class="form-control" placeholder="Phone No." name="p1_phone" required></div> </div> <div class="row"> <div class="col-sm-6 form-group"><select class="form-control" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div> <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Membership ID (if applicable)" name="p1_ieee_id"></div> </div>
+                    <div class="row">
+                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_name" name="p1_name" placeholder=" " required><label for="p1_name">Name</label></div></div>
+                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_college" name="p1_college" placeholder=" " required><label for="p1_college">College Name</label></div></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4"><div class="form-group"><select class="form-control" id="p1_year" name="p1_year" required><option value="" disabled selected>Select Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div></div>
+                        <div class="col-md-4"><div class="form-group"><select class="form-control" id="p1_branch" name="p1_branch" required><option value="" disabled selected>Select Branch</option><option value="CIVIL">CIVIL</option><option value="CSB">CSB</option><option value="CSC">CSC</option><option value="CSD">CSD</option><option value="CSE">CSE</option><option value="CSM">CSM</option><option value="ECE">ECE</option><option value="EEE">EEE</option><option value="IT">IT</option><option value="MECH">MECH</option><option value="OTHERS">OTHERS</option></select></div></div>
+                        <div class="col-md-4"><div class="form-group"><select class="form-control" id="p1_section" name="p1_section" required><option value="" disabled selected>Select Section</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="OTHERS">OTHERS</option></select></div></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4"><div class="floating-label"><input type="text" class="form-control" id="p1_roll" name="p1_roll" required pattern="[a-zA-Z0-9]{10}" maxlength="10" placeholder=" " title="Please enter a 10-character Roll No."><label for="p1_roll">Roll No.</label></div></div>
+                        <div class="col-md-4"><div class="floating-label"><input type="email" class="form-control" id="p1_email" name="p1_email" placeholder=" " required><label for="p1_email">Email</label></div></div>
+                        <div class="col-md-4"><div class="floating-label"><input type="tel" class="form-control" id="p1_phone" name="p1_phone" placeholder=" " required><label for="p1_phone">Phone No.</label></div></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6"><div class="form-group"><select class="form-control" id="p1_ieee_member" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div></div>
+                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_ieee_id" name="p1_ieee_id" placeholder=" "><label for="p1_ieee_id">IEEE Membership ID</label></div></div>
+                    </div>
                 </div>
              </div>`;
     } else if (participantCategory === 'faculty') {
@@ -194,16 +218,16 @@ function generateRegistrationForm(event, participantCategory) {
                 <label class="participant-label">Faculty Details</label>
                 <div class="fields">
                     <div class="row">
-                        <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Name" name="p1_name" required></div>
-                        <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Department" name="p1_dept" required></div>
+                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_name" name="p1_name" placeholder=" " required><label for="p1_name">Name</label></div></div>
+                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_dept" name="p1_dept" placeholder=" " required><label for="p1_dept">Department</label></div></div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6 form-group"><input type="email" class="form-control" placeholder="Email" name="p1_email" required></div>
-                        <div class="col-sm-6 form-group"><input type="tel" class="form-control" placeholder="Phone No." name="p1_phone" required></div>
+                        <div class="col-md-6"><div class="floating-label"><input type="email" class="form-control" id="p1_email" name="p1_email" placeholder=" " required><label for="p1_email">Email</label></div></div>
+                        <div class="col-md-6"><div class="floating-label"><input type="tel" class="form-control" id="p1_phone" name="p1_phone" placeholder=" " required><label for="p1_phone">Phone No.</label></div></div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6 form-group"><select class="form-control" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
-                        <div class="col-sm-6 form-group"><input type="text" class="form-control" placeholder="Membership ID (if applicable)" name="p1_ieee_id"></div>
+                        <div class="col-md-6"><div class="form-group"><select class="form-control" id="p1_ieee_member" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div></div>
+                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_ieee_id" name="p1_ieee_id" placeholder=" "><label for="p1_ieee_id">IEEE Membership ID</label></div></div>
                     </div>
                 </div>
             </div>`;
@@ -215,7 +239,6 @@ function generateRegistrationForm(event, participantCategory) {
     if (regFormContainer) {
         regFormContainer.innerHTML = finalHTML;
 
-        // This triggers the animation
         setTimeout(() => {
             regForm.classList.add('is-visible');
         }, 10);
