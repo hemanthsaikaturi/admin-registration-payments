@@ -313,15 +313,6 @@ input[name="paymentScreenshot"] {
     justify-content: center;
     margin-bottom: 10px;
 }
-.footer .social-icons a {
-    color: #adb5bd;
-    margin: 0 12px;
-    font-size: 1.5rem;
-    transition: color 0.3s ease;
-}
-.footer .social-icons a:hover {
-    color: #fff;
-}
 
 /* ============== PRELOADER STYLES ============== */
 #preloader {
@@ -371,7 +362,7 @@ input[name="paymentScreenshot"] {
     }
 }
 
-/* --- NEW SOCIAL CONNECT SECTION --- */
+/* --- SOCIAL CONNECT SECTION (FIXED) --- */
 .social-connect-container {
     display: flex;
     flex-direction: column;
@@ -379,14 +370,14 @@ input[name="paymentScreenshot"] {
     gap: 15px;
     margin-top: 20px;
 }
-.social-link-card {
+.social-connect-container .social-link-card {
     display: flex;
     align-items: center;
     gap: 20px;
     padding: 15px 25px;
     background-color: #fff;
     border: 1px solid #dee2e6;
-    border-radius: 12px 12px 30px 12px; /* Custom shape */
+    border-radius: 12px 12px 30px 12px;
     color: #343a40;
     text-decoration: none;
     font-weight: 500;
@@ -395,30 +386,31 @@ input[name="paymentScreenshot"] {
     max-width: 400px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
-.social-link-card:hover {
+.social-connect-container .social-link-card:hover {
     color: #00629b;
     transform: translateY(-5px) scale(1.02);
     box-shadow: 0 8px 20px rgba(0, 98, 155, 0.1);
     text-decoration: none;
 }
-.social-link-card i {
+.social-connect-container .social-link-card i {
     font-size: 2rem;
     color: #00629b;
 }
-.social-text {
+.social-connect-container .social-text {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     line-height: 1.2;
 }
-.social-text .title {
+.social-connect-container .social-text .title {
     font-weight: 600;
     font-size: 1.1rem;
 }
-.social-text .subtitle {
+.social-connect-container .social-text .subtitle {
     font-size: 0.85rem;
     color: #6c757d;
 }
+
 
 @media (min-width: 769px) {
     .upi-pay-button {
