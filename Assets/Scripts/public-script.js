@@ -142,13 +142,17 @@ function generateRegistrationForm(event, participantCategory) {
         
         let upiLinkHTML = '';
         
-
+        // --- THIS IS THE DEFINITIVE FIX ---
+        // Creates a "high-trust" UPI link that includes a unique transaction ID and a merchant code.
         if (event.upiId && event.payeeName && fee > 0) {
             const transactionNote = encodeURIComponent(`Registration for ${event.eventName}`);
             const payeeName = encodeURIComponent(event.payeeName);
-            const amount = parseFloat(fee).toFixed(2); // Correctly formats the amount
+            const amount = parseFloat(fee).toFixed(2);
+            const transactionId = `IEEEVBIT-${Date.now()}`; // 1. Generate a Unique Transaction ID
+            const merchantCode = '8220'; // 2. Add Merchant Code for Educational Services
 
-            const upiUrl = `upi://pay?pa=${event.upiId}&pn=${payeeName}&am=${amount}&cu=INR&tn=${transactionNote}`;
+            // 3. Construct the new, robust URL
+            const upiUrl = `upi://pay?pa=${event.upiId}&pn=${payeeName}&am=${amount}&cu=INR&tn=${transactionNote}&tr=${transactionId}&mc=${merchantCode}`;
             
             upiLinkHTML = `
                 <a href="${upiUrl}" class="upi-pay-button">
