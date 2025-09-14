@@ -138,40 +138,25 @@ function generateRegistrationForm(event, participantCategory) {
     if (event.paymentsEnabled && event.qrCodeURL) {
         const fee = participantCategory === 'student' ? (event.studentFee || 0) : (event.facultyFee || 0);
         
-        const upiLogoUrl = 'Assets/images/upi-logo.png'; 
-        
-        let upiLinkHTML = '';
-        
-        // --- THIS IS THE DEFINITIVE FIX ---
-        // Creates a "high-trust" UPI link that includes a unique transaction ID and a merchant code.
-        if (event.upiId && event.payeeName && fee > 0) {
-            const transactionNote = encodeURIComponent(`Registration for ${event.eventName}`);
-            const payeeName = encodeURIComponent(event.payeeName);
-            const amount = parseFloat(fee).toFixed(2);
-            const transactionId = `IEEEVBIT-${Date.now()}`; // 1. Generate a Unique Transaction ID
-            const merchantCode = '8220'; // 2. Add Merchant Code for Educational Services
+        const paymentInstructions = event.paymentInstructions || `
+            <b>On Desktop:</b> Scan the QR code with your UPI app.
+            <br><b>On Mobile:</b> Use the 'Download QR' button, then open your UPI app's 'Scan from Gallery' option.
+            <br>After paying, enter the UPI Transaction ID and upload the screenshot.
+        `;
 
-            // 3. Construct the new, robust URL
-            const upiUrl = `upi://pay?pa=${event.upiId}&pn=${payeeName}&am=${amount}&cu=INR&tn=${transactionNote}&tr=${transactionId}&mc=${merchantCode}`;
-            
-            upiLinkHTML = `
-                <a href="${upiUrl}" class="upi-pay-button">
-                    <div class="upi-button-text">
-                        <span class="line-1">Tap to Pay with</span>
-                        <span class="line-2">UPI</span>
-                    </div>
-                    <img src="${upiLogoUrl}" alt="UPI Logo">
-                </a>`;
-        }
+        const downloadButtonHTML = `
+            <a href="${event.qrCodeURL}" download="payment-qr-code.png" class="btn btn-success upi-pay-button">
+                Download QR Code <i class="fa fa-download"></i>
+            </a>`;
         
         finalHTML += `
             <div class="participant">
                 <label class="participant-label">Step 1: Complete Your Payment</label>
                 <div class="payment-details-container">
-                    <p class="payment-instructions">${event.paymentInstructions || ''}</p>
+                    <p class="payment-instructions" style="text-align: left;">${paymentInstructions}</p>
                     <h5 class="mt-2"><strong>Event Fee: ₹${fee}</strong></h5>
                     <img src="${event.qrCodeURL}" alt="Payment QR Code" style="max-width: 220px; border-radius: 8px;" class="mb-3">
-                    ${upiLinkHTML}
+                    ${downloadButtonHTML}
                     <div class="row w-100">
                         <div class="col-md-6">
                              <div class="floating-label">
