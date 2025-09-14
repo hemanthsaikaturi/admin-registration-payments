@@ -15,11 +15,11 @@
 </div>
 
 <div id="dashboard-content" style="display: none">
-  <nav class="navbar navbar-dark bg-dark">
+  <nav class="navbar navbar-light bg-light">
     <div class="container">
       <a class="navbar-brand" href="admin.html">
-        <img src="../Assets/images/FinalLogo1.png" width="30" height="30" class="d-inline-block align-top" alt="IEEE Logo" />
-        IEEE VBIT SB - Admin Dashboard
+        <img src="../Assets/images/FinalLogo1_Black.png" width="30" height="30" class="d-inline-block align-top mr-2" alt="IEEE Logo" />
+        Admin Dashboard
       </a>
       <button id="logout-button" class="btn btn-danger">Logout</button>
     </div>
@@ -103,7 +103,7 @@
             <h5>4. Payment Settings</h5>
             <div class="form-group form-check">
                 <input type="checkbox" class="form-check-input" id="enablePayments">
-                <label class="form-check-label" for="enablePayments">Enable Payments for this Event (QR Code Mode)</label>
+                <label class="form-check-label" for="enablePayments">Enable Payments for this Event</label>
             </div>
             <div id="payment-details-container" style="display: none;" class="border p-3 rounded mb-3 bg-light">
                 <div class="form-row">
@@ -137,7 +137,7 @@
                 </div>
                 <div class="form-group">
                     <label for="paymentInstructions">Payment Instructions</label>
-                    <textarea class="form-control" id="paymentInstructions" rows="3" placeholder="e.g., 1. Tap the button below (on mobile) or scan the QR. 2. Complete the payment. 3. Copy the UPI Transaction ID and upload a screenshot before submitting."></textarea>
+                    <textarea class="form-control" id="paymentInstructions" rows="3" placeholder="e.g., On Mobile: Download the QR, then use your UPI app's 'Scan from Gallery' option."></textarea>
                 </div>
             </div>
 
@@ -177,24 +177,7 @@
             <div class="card card-body">
                 <form id="past-events-form">
                     <div class="row">
-                        <div class="col-lg-4 border-right">
-                            <h5 class="mb-3">Slot 1</h5>
-                            <div class="form-group"><label>Title</label><input type="text" id="pastEventTitle1" class="form-control"></div>
-                            <div class="form-group"><label>Date</label><input type="text" id="pastEventDate1" class="form-control" placeholder="e.g., 1st Jan, 2025"></div>
-                            <div class="form-group"><label>Poster</label><input type="file" id="pastEventPoster1" class="form-control-file" accept="image/*"></div>
-                        </div>
-                        <div class="col-lg-4 border-right">
-                            <h5 class="mb-3">Slot 2</h5>
-                            <div class="form-group"><label>Title</label><input type="text" id="pastEventTitle2" class="form-control"></div>
-                            <div class="form-group"><label>Date</label><input type="text" id="pastEventDate2" class="form-control" placeholder="e.g., 2nd Feb, 2025"></div>
-                            <div class="form-group"><label>Poster</label><input type="file" id="pastEventPoster2" class="form-control-file" accept="image/*"></div>
-                        </div>
-                        <div class="col-lg-4">
-                            <h5 class="mb-3">Slot 3</h5>
-                            <div class="form-group"><label>Title</label><input type="text" id="pastEventTitle3" class="form-control"></div>
-                            <div class="form-group"><label>Date</label><input type="text" id="pastEventDate3" class="form-control" placeholder="e.g., 3rd Mar, 2025"></div>
-                            <div class="form-group"><label>Poster</label><input type="file" id="pastEventPoster3" class="form-control-file" accept="image/*"></div>
-                        </div>
+                        <!-- Slots -->
                     </div>
                     <button type="submit" class="btn btn-success btn-block mt-3">Save All Filled Past Events</button>
                 </form>

@@ -144,10 +144,7 @@ function generateRegistrationForm(event, participantCategory) {
             <br>After paying, enter the UPI Transaction ID and upload the screenshot.
         `;
 
-        const downloadButtonHTML = `
-            <a href="${event.qrCodeURL}" download="payment-qr-code.png" class="btn btn-success upi-pay-button">
-                Download QR Code <i class="fa fa-download"></i>
-            </a>`;
+        const downloadButtonHTML = `<button type="button" id="download-qr-btn" class="btn btn-success upi-pay-button">Download QR Code <i class="fa fa-download"></i></button>`;
         
         finalHTML += `
             <div class="participant">
@@ -232,6 +229,32 @@ function generateRegistrationForm(event, participantCategory) {
     
     if (regFormContainer) {
         regFormContainer.innerHTML = finalHTML;
+        
+        // --- QR CODE DOWNLOAD LOGIC ---
+        const downloadQrBtn = document.getElementById('download-qr-btn');
+        if (downloadQrBtn) {
+            downloadQrBtn.addEventListener('click', async () => {
+                try {
+                    downloadQrBtn.textContent = 'Downloading...';
+                    const response = await fetch(event.qrCodeURL);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `${event.eventName.replace(/\s+/g, '_')}_QR.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                    downloadQrBtn.innerHTML = 'Download QR Code <i class="fa fa-download"></i>';
+                } catch (err) {
+                    console.error('Error downloading QR code:', err);
+                    downloadQrBtn.innerHTML = 'Download QR Code <i class="fa fa-download"></i>';
+                    alert('Could not download QR code. Please take a screenshot.');
+                }
+            });
+        }
 
         setTimeout(() => {
             regForm.classList.add('is-visible');

@@ -1,115 +1,125 @@
-/* General Body Styles */
+/* --- General & Body --- */
 body {
-  background-color: #f4f7f6;
-  font-family: "Poppins", sans-serif;
-  color: #333;
+    background-color: #f4f7f6;
+    font-family: "Poppins", sans-serif;
+    color: #333;
 }
 
-/* ============== LOGIN PAGE SPECIFIC STYLES ============== */
+/* --- Login Page --- */
 .login-page-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #eef2f5;
 }
-
 .login-container {
-  width: 100%;
-  max-width: 400px;
-  padding: 0 15px;
+    width: 100%;
+    max-width: 420px;
+    padding: 0 15px;
 }
-
 .login-box {
-  background: #ffffff;
-  padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+    text-align: center;
 }
-
 .login-box .logo {
-  width: 80px;
-  margin-bottom: 20px;
+    width: 80px;
+    margin-bottom: 20px;
 }
-
 .login-box h3 {
-  margin-bottom: 25px;
+    margin-bottom: 25px;
+    font-weight: 600;
 }
 
-.form-group label {
-  text-align: left;
-  display: block;
-  font-weight: 500;
+/* --- Dashboard Navigation --- */
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+.navbar-brand {
+    color: #0C71C3 !important;
+    font-weight: 600;
 }
 
-/* ============== SIMPLE LOADER STYLES ============== */
-.loader-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+/* --- Main Dashboard Content --- */
+h2 {
+    font-weight: 600;
+    color: #003e6b;
+}
+.card {
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-.spinner {
-  border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #00629b; /* IEEE Blue */
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1.5s linear infinite;
+/* --- Buttons --- */
+.btn-primary {
+    background-color: #0C71C3;
+    border-color: #0C71C3;
+    font-weight: 500;
+}
+.btn-primary:hover {
+    background-color: #0a589a;
+    border-color: #0a589a;
+}
+.btn-danger {
+    font-weight: 500;
+}
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
 }
 
-.loader-container p {
-  margin-top: 20px;
-  font-size: 1.2em;
-  color: #555;
+/* --- Tables --- */
+.table th, .table td {
+    vertical-align: middle;
+    padding: 1rem;
 }
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+.table thead th {
+    font-weight: 600;
 }
-
-/* Style for the action button container */
 .action-buttons-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
-/* ============== RESPONSIVENESS ============== */
-@media (max-width: 768px) {
-  .login-box {
-    padding: 25px;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-  }
-
-  /* Stacks buttons vertically on mobile */
-  .action-buttons-container {
+/* --- Loader --- */
+.loader-container {
+    display: flex;
     flex-direction: column;
-    align-items: stretch;
-  }
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #0C71C3;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1.5s linear infinite;
+}
+.loader-container p {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #555;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.payment-instructions {
-  white-space: pre-wrap;
-  text-align: left;
-  background-color: #e9ecef;
-  padding: 15px;
-  border-radius: 5px;
-  margin-bottom: 1rem;
-}
-
-.participant-header {
-  margin-top: 2rem;
-  border-top: 2px solid #eee;
-  padding-top: 1rem;
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .login-box { padding: 25px; }
+    h2 { font-size: 1.5rem; }
+    .action-buttons-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
