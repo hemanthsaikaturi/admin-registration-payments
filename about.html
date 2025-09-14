@@ -15,22 +15,23 @@
 
 <body>
     <div id="content">
-        <header class="fade-in-up"> 
+        <header> 
             <img class="logo rounded mx-auto d-block" src="Assets/images/FinalLogo1.png" alt="IEEE - VBIT SB Logo">
         </header>
 
         <div class="content-wrapper">
-            <h1 class="head-text fade-in-up">Registration Successful!</h1> 
+            <h1 class="head-text">Registration Successful!</h1> 
 
-            <div class="link fade-in-up">
+            <div class="link">
                 <a href="index.html" class="submit btn1 new-reg-btn">Register for Another Event</a>
             </div>
 
-            <section class="upcoming-Events fade-in-up"> 
+            <section class="upcoming-Events"> 
                 <div class="section-header">
                     <h2>PAST EVENTS</h2>
                 </div>
                 <div class="events" id="past-events-grid">
+                    <!-- Skeleton Loader Start -->
                     <div class="event-item skeleton-card">
                         <div class="skeleton skeleton-img"></div>
                         <div class="event-info">
@@ -52,10 +53,11 @@
                             <div class="skeleton skeleton-text short"></div>
                         </div>
                     </div>
+                    <!-- Skeleton Loader End -->
                 </div>
             </section>
 
-            <section class="fade-in-up">
+            <section>
                 <div class="section-header">
                     <h2>Official Media Platforms</h2>
                 </div>
@@ -98,7 +100,7 @@
                 </div>
             </section>
 
-            <section class="membership-benefits fade-in-up">
+            <section class="membership-benefits">
                 <div class="section-header">
                     <h2>MEMBERSHIP BENEFITS</h2>
                 </div>
@@ -115,7 +117,7 @@
     </div>
 
     <footer class="footer">
-        Designed and Developed by Web Designer | IEEE - VBIT SB
+        <div class="row">Designed and Developed by Web Designer | IEEE - VBIT SB</div>
     </footer>
 
     <!-- Scripts -->
@@ -125,13 +127,6 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const animatedElements = document.querySelectorAll('.fade-in-up');
-            animatedElements.forEach((element, index) => {
-                setTimeout(() => {
-                    element.classList.add('is-visible');
-                }, index * 100); 
-            });
-
             // --- Firebase Logic for Past Events ---
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
