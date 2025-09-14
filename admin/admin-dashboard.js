@@ -214,8 +214,6 @@ async function populateFormForEdit(eventId) {
                 document.getElementById('current-qr-container').style.display = 'block';
                 document.getElementById('current-qr-img').src = event.qrCodeURL;
             }
-            document.getElementById('payeeName').value = event.payeeName || '';
-            document.getElementById('upiId').value = event.upiId || '';
         }
 
         document.getElementById('emailContent').value = event.emailTemplate || '';
@@ -379,8 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 studentFee: document.getElementById('studentFee').value,
                 facultyFee: document.getElementById('facultyFee').value,
                 paymentInstructions: document.getElementById('paymentInstructions').value,
-                payeeName: document.getElementById('payeeName').value,
-                upiId: document.getElementById('upiId').value,
             };
             
             const eventPosterFile = document.getElementById('eventPoster').files[0];
