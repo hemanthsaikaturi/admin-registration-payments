@@ -141,10 +141,15 @@ function generateRegistrationForm(event, participantCategory) {
         const upiLogoUrl = 'Assets/images/upi-logo.png'; 
         
         let upiLinkHTML = '';
+        
+
         if (event.upiId && event.payeeName && fee > 0) {
             const transactionNote = encodeURIComponent(`Registration for ${event.eventName}`);
             const payeeName = encodeURIComponent(event.payeeName);
-            const upiUrl = `upi://pay?pa=${event.upiId}&pn=${payeeName}&am=${fee}&cu=INR&tn=${transactionNote}`;
+            const amount = parseFloat(fee).toFixed(2); // Correctly formats the amount
+
+            const upiUrl = `upi://pay?pa=${event.upiId}&pn=${payeeName}&am=${amount}&cu=INR&tn=${transactionNote}`;
+            
             upiLinkHTML = `
                 <a href="${upiUrl}" class="upi-pay-button">
                     <div class="upi-button-text">
