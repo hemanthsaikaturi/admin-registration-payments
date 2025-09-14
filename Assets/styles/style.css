@@ -1,10 +1,9 @@
 /* --- GLOBAL & TYPOGRAPHY --- */
 html {
-    scroll-behavior: smooth;
     height: 100%;
 }
 body {
-    min-height: 100%; 
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     background-color: #f8f9fa;
@@ -13,9 +12,7 @@ body {
     line-height: 1.6;
 }
 #content {
-    flex-grow: 1; 
-    display: flex;
-    flex-direction: column;
+    flex-grow: 1;
 }
 #content > .container {
     flex-grow: 1; 
@@ -303,15 +300,8 @@ input[name="paymentScreenshot"] {
     padding: 20px 15px;
     width: 100%;
     text-align: center;
-    display: flex;
-    flex-direction: column; 
-    align-items: center;
     font-size: 16px;
-}
-.footer .row {
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 10px;
+    font-weight: 500;
 }
 
 /* ============== PRELOADER STYLES ============== */
@@ -362,7 +352,7 @@ input[name="paymentScreenshot"] {
     }
 }
 
-/* --- SOCIAL CONNECT SECTION (FIXED) --- */
+/* --- SOCIAL CONNECT SECTION --- */
 .social-connect-container {
     display: flex;
     flex-direction: column;
@@ -411,7 +401,6 @@ input[name="paymentScreenshot"] {
     color: #6c757d;
 }
 
-
 @media (min-width: 769px) {
     .upi-pay-button {
         display: none !important;
@@ -421,7 +410,7 @@ input[name="paymentScreenshot"] {
 /* --- RESPONSIVE STYLES --- */
 @media (max-width: 576px) {
     .footer {
-        font-size: 12px;
+        font-size: 13px;
     }
     section.about {
         padding: 20px 15px;
@@ -438,8 +427,14 @@ input[name="paymentScreenshot"] {
     }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 375px) {
     .footer {
         font-size: 11px;
+    }
+}
+
+@media (max-width: 320px) {
+    .footer {
+        font-size: 10px;
     }
 }
