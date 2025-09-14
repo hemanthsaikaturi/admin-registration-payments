@@ -309,13 +309,13 @@ input[name="paymentScreenshot"] {
     margin-top: 10px;
 }
 .footer .social-icons a {
-    color: #adb5bd;
+    color: #adb5bd !important; /* This is the fix */
     margin: 0 12px;
     font-size: 1.5rem;
     transition: color 0.3s ease;
 }
 .footer .social-icons a:hover {
-    color: #fff;
+    color: #fff !important; /* Added for consistency */
 }
 
 
