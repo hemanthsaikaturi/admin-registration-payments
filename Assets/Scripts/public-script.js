@@ -140,11 +140,13 @@ function generateRegistrationForm(event, participantCategory) {
         
         const paymentInstructions = event.paymentInstructions || `
             <b>On Desktop:</b> Scan the QR code with your UPI app.
-            <br><b>On Mobile:</b> Use the 'Download QR' button, then open your UPI app's 'Scan from Gallery' option.
+            <br><b>On Mobile:</b> Use the 'Share QR' button to send it to your UPI app.
             <br>After paying, enter the UPI Transaction ID and upload the screenshot.
         `;
 
-        const downloadButtonHTML = `<button type="button" id="download-qr-btn" class="btn btn-success upi-pay-button">Download QR Code <i class="fa fa-download"></i></button>`;
+        // --- THE FINAL, RELIABLE FIX ---
+        // Changed the button to trigger the Web Share API.
+        const shareButtonHTML = `<button type="button" id="share-qr-btn" class="btn btn-success upi-pay-button">Share QR Code <i class="fa fa-share-alt"></i></button>`;
         
         finalHTML += `
             <div class="participant">
@@ -153,7 +155,7 @@ function generateRegistrationForm(event, participantCategory) {
                     <p class="payment-instructions" style="text-align: left;">${paymentInstructions}</p>
                     <h5 class="mt-2"><strong>Event Fee: ₹${fee}</strong></h5>
                     <img src="${event.qrCodeURL}" alt="Payment QR Code" style="max-width: 220px; border-radius: 8px;" class="mb-3">
-                    ${downloadButtonHTML}
+                    ${shareButtonHTML}
                     <div class="row w-100">
                         <div class="col-md-6">
                              <div class="floating-label">
@@ -230,28 +232,29 @@ function generateRegistrationForm(event, participantCategory) {
     if (regFormContainer) {
         regFormContainer.innerHTML = finalHTML;
         
-        // --- QR CODE DOWNLOAD LOGIC ---
-        const downloadQrBtn = document.getElementById('download-qr-btn');
-        if (downloadQrBtn) {
-            downloadQrBtn.addEventListener('click', async () => {
-                try {
-                    downloadQrBtn.textContent = 'Downloading...';
-                    const response = await fetch(event.qrCodeURL);
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = `${event.eventName.replace(/\s+/g, '_')}_QR.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    a.remove();
-                    downloadQrBtn.innerHTML = 'Download QR Code <i class="fa fa-download"></i>';
-                } catch (err) {
-                    console.error('Error downloading QR code:', err);
-                    downloadQrBtn.innerHTML = 'Download QR Code <i class="fa fa-download"></i>';
-                    alert('Could not download QR code. Please take a screenshot.');
+        const shareQrBtn = document.getElementById('share-qr-btn');
+        if (shareQrBtn) {
+            shareQrBtn.addEventListener('click', async () => {
+                if (navigator.share) { // Check if the Web Share API is supported
+                    try {
+                        // We must fetch the image data to share it as a file
+                        const response = await fetch(event.qrCodeURL);
+                        const blob = await response.blob();
+                        const file = new File([blob], 'payment-qr.png', { type: blob.type });
+
+                        await navigator.share({
+                            title: `Payment for ${event.eventName}`,
+                            text: `Scan this QR code to pay the event fee.`,
+                            files: [file]
+                        });
+                    } catch (err) {
+                        console.error('Error sharing QR code:', err);
+                        // Fallback for when sharing fails
+                        window.open(event.qrCodeURL, '_blank');
+                    }
+                } else {
+                    // Fallback for desktop or unsupported browsers
+                    window.open(event.qrCodeURL, '_blank');
                 }
             });
         }
