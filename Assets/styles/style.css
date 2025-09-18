@@ -24,7 +24,7 @@ h2 {
 
 /* --- HEADER & LOGO --- */
 header.container {
-    padding: 30px 0;
+    padding: 15px 0;
     text-align: center;
 }
 img.logo {
@@ -69,10 +69,12 @@ section.about {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
 }
-.event-description p {
+.event-description p, .payment-instructions {
     font-size: 1.1rem;
     color: #555;
     white-space: pre-wrap;
+    text-align: justify;
+    /* Hyphens removed */
 }
 
 /* --- ROLE SELECTION BUTTONS --- */
@@ -424,6 +426,10 @@ input[name="paymentScreenshot"] {
 
 /* --- RESPONSIVE STYLES --- */
 @media (max-width: 576px) {
+    .event-description p, .payment-instructions {
+        font-size: small;
+        text-align: justify;
+    }
     .footer {
         font-size: 13px;
     }
