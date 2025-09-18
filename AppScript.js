@@ -1,7 +1,7 @@
 //AppScript to import data from Firestore into Google Sheets
 // Configuration - Only change this collection name as needed
 var FIREBASE_PROJECT_ID = 'testing-registration-admin2'; // Use your actual Project ID
-var FIRESTORE_COLLECTION = 'TestParticipants'; // Update this for each collection as required
+var FIRESTORE_COLLECTION = 'CareerLinkParticipants'; // Update this for each collection as required
 var SHEET_NAME = 'Sheet1';
 
 // Create UI menu when spreadsheet opens
@@ -13,7 +13,7 @@ function onOpen() {
 }
 
 function importTeamDataFromFirestore() {
-  var ui = SpreadsheetApp.getUi();
+  var ui = SpreadsheetApp.getUi();  
   
   try {
     var firestoreUrl = 'https://firestore.googleapis.com/v1/projects/' + FIREBASE_PROJECT_ID + '/databases/(default)/documents/' + FIRESTORE_COLLECTION;
