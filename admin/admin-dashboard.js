@@ -207,6 +207,7 @@ async function populateFormForEdit(eventId) {
         enablePaymentsCheckbox.checked = event.paymentsEnabled || false;
         enablePaymentsCheckbox.dispatchEvent(new Event('change'));
         if (event.paymentsEnabled) {
+            document.getElementById('isFreeForIeeeMembers').checked = event.isFreeForIeeeMembers !== false; // Default to true if undefined
             document.getElementById('studentFee').value = event.studentFee || '';
             document.getElementById('facultyFee').value = event.facultyFee || '';
             document.getElementById('paymentInstructions').value = event.paymentInstructions || '';
@@ -374,6 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 studentCustomQuestions: getCustomQuestions('student-questions-container'),
                 facultyCustomQuestions: getCustomQuestions('faculty-questions-container'),
                 paymentsEnabled: document.getElementById('enablePayments').checked,
+                isFreeForIeeeMembers: document.getElementById('isFreeForIeeeMembers').checked,
                 studentFee: document.getElementById('studentFee').value,
                 facultyFee: document.getElementById('facultyFee').value,
                 paymentInstructions: document.getElementById('paymentInstructions').value,
