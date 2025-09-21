@@ -96,38 +96,6 @@ function setupRegistrationFlow(event) {
     }
 }
 
-function generateCustomQuestions(event, participantCategory) {
-    let customQuestions = [];
-    if (participantCategory === 'student' && event.studentCustomQuestions) {
-        customQuestions = event.studentCustomQuestions;
-    } else if (participantCategory === 'faculty' && event.facultyCustomQuestions) {
-        customQuestions = event.facultyCustomQuestions;
-    }
-    
-    let questionsHTML = '';
-    if (customQuestions && customQuestions.length > 0) {
-        questionsHTML = `<div class="participant"><label class="participant-label">Additional Questions</label><div class="fields">`;
-        customQuestions.forEach((q, i) => {
-            const fieldId = `custom_q_${i}`;
-            const fieldName = `custom_q_${q.label.replace(/\s+/g, '_')}`;
-            
-            if (q.type === 'text') {
-                questionsHTML += `<div class="floating-label"><input type="text" class="form-control" id="${fieldId}" name="${fieldName}" placeholder=" " required><label for="${fieldId}">${q.label}</label></div>`;
-            } else { 
-                questionsHTML += `<div class="form-group"><select class="form-control" id="${fieldId}" name="${fieldName}" required><option value="" disabled selected>${q.label}</option>`;
-                if (q.type === 'yesno') {
-                    questionsHTML += `<option value="Yes">Yes</option><option value="No">No</option>`;
-                } else if (q.type === 'rating') {
-                    for (let j = 1; j <= 10; j++) questionsHTML += `<option value="${j}">${j}</option>`;
-                }
-                questionsHTML += `</select></div>`;
-            }
-        });
-        questionsHTML += `</div></div>`;
-    }
-    return questionsHTML;
-}
-
 // --- FORM GENERATION (FINAL VERSION) ---
 function generateRegistrationForm(event, participantCategory) {
     participantTypeSelector.style.display = 'none';
@@ -211,18 +179,16 @@ function generateRegistrationForm(event, participantCategory) {
                     <div class="col-md-6"><div class="floating-label"><input type="email" class="form-control" id="p1_email" name="p1_email" placeholder=" " required><label for="p1_email">Email</label></div></div>
                     <div class="col-md-6"><div class="floating-label"><input type="tel" class="form-control" id="p1_phone" name="p1_phone" placeholder=" " required><label for="p1_phone">Phone No.</label></div></div>
                 </div>
-                <div class="info-button-wrapper">
-                    <div class="form-group flex-grow-1 mb-0"><select class="form-control" id="p1_ieee_member" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
-                    <button type="button" class="info-button" data-toggle="modal" data-target="#infoModal">i</button>
+                <div class="form-group">
+                    <select class="form-control" id="p1_ieee_member" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select>
+                </div>
+                <div class="info-text-wrapper">
+                    <a href="#" data-toggle="modal" data-target="#infoModal">How do I find my Member ID?</a>
                 </div>
             </div>
         </div>`;
     
     finalHTML += participantHTML;
-    
-    // --- THIS IS THE FIX ---
-    // The call to generate custom questions has been restored.
-    finalHTML += generateCustomQuestions(event, participantCategory);
     
     if (regFormContainer) {
         regFormContainer.innerHTML = finalHTML;

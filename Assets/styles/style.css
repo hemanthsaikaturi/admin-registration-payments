@@ -73,7 +73,7 @@ section.about {
     font-size: 1.1rem;
     color: #555;
     white-space: pre-wrap;
-    text-align: justify !important;
+    text-align: justify;
 }
 
 /* --- ROLE SELECTION BUTTONS --- */
@@ -369,31 +369,19 @@ input[name="membershipCard"] {
     }
 }
 
-/* --- INFO BUTTON & MODAL STYLING --- */
-.info-button-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+/* --- INFO TEXT LINK & MODAL STYLING --- */
+.info-text-wrapper {
+    text-align: right;
+    margin-top: -1.2rem;
     margin-bottom: 1.5rem;
 }
-.info-button {
-    background-color: #e9ecef;
-    color: #495057;
-    border: 1px solid #ced4da;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
+.info-text-wrapper a {
     font-size: 0.9rem;
-    font-weight: bold;
-    line-height: 26px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    color: #0C71C3;
+    font-weight: 500;
 }
-.info-button:hover {
-    background-color: #0C71C3;
-    color: #fff;
-    border-color: #0C71C3;
+.info-text-wrapper a:hover {
+    text-decoration: underline;
 }
 .modal-image {
     max-width: 100%;
@@ -401,6 +389,7 @@ input[name="membershipCard"] {
     border: 1px solid #dee2e6;
     margin: 15px 0;
 }
+
 
 /* --- SOCIAL CONNECT SECTION --- */
 .social-connect-container {
@@ -459,10 +448,9 @@ input[name="membershipCard"] {
 
 /* --- RESPONSIVE STYLES --- */
 @media (max-width: 576px) {
-    /* --- THIS IS THE FIX --- */
     .event-description p, .payment-instructions {
-        font-size: small; /* Use the smaller font size */
-        text-align: justify !important; /* Ensure it remains justified */
+        font-size: small;
+        text-align: justify;
     }
     .footer {
         font-size: 13px;
