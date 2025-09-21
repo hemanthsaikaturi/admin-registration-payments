@@ -143,7 +143,7 @@ function generateRegistrationForm(event, participantCategory) {
         paymentSectionHTML = `
             <div id="payment-section" style="display: none;">
                 <div class="participant">
-                    <label class="participant-label">Step 1: Complete Your Payment</label>
+                    <label class="participant-label">Payment Details</label>
                     <div class="payment-details-container">
                         <p class="payment-instructions">${event.paymentInstructions || ''}</p>
                         <h5 class="mt-2"><strong>Event Fee: ₹${fee}</strong></h5>
@@ -164,8 +164,7 @@ function generateRegistrationForm(event, participantCategory) {
     const ieeeMemberSectionHTML = `
         <div id="ieee-member-section" style="display: none;">
             <div class="participant">
-                <label class="participant-label">IEEE Member Details</label>
-                <p>Registration for this event is free for IEEE members. Please provide your membership details for verification.</p>
+                <label class="participant-label">IEEE Member Verification</label>
                 <div class="floating-label">
                     <input type="text" class="form-control" id="membershipId" name="membershipId" placeholder=" ">
                     <label for="membershipId">IEEE Membership ID</label>
@@ -178,8 +177,7 @@ function generateRegistrationForm(event, participantCategory) {
             </div>
         </div>`;
 
-    finalHTML += paymentSectionHTML + ieeeMemberSectionHTML;
-
+    // --- THIS IS THE FIX: Rearranged the HTML structure ---
     const participantLabelText = 'Enter Your Details';
     let participantHTML = `<div class="participant-header"><label class="participant-label">${participantLabelText}</label></div>`;
     
@@ -221,6 +219,8 @@ function generateRegistrationForm(event, participantCategory) {
         </div>`;
     
     finalHTML += participantHTML;
+    finalHTML += ieeeMemberSectionHTML;
+    finalHTML += paymentSectionHTML;
     finalHTML += generateCustomQuestions(event, participantCategory);
     
     if (regFormContainer) {
