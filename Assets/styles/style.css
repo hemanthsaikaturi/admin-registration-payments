@@ -73,7 +73,7 @@ section.about {
     font-size: 1.1rem;
     color: #555;
     white-space: pre-wrap;
-    text-align: justify;
+    text-align: justify !important;
 }
 
 /* --- ROLE SELECTION BUTTONS --- */
@@ -462,7 +462,7 @@ input[name="membershipCard"] {
     /* --- THIS IS THE FIX --- */
     .event-description p, .payment-instructions {
         font-size: small; /* Use the smaller font size */
-        text-align: justify; /* Ensure it remains justified */
+        text-align: justify !important; /* Ensure it remains justified */
     }
     .footer {
         font-size: 13px;
