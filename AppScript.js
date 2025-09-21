@@ -1,18 +1,27 @@
-//AppScript to import data from Firestore into Google Sheets
-// Configuration - Only change this collection name as needed
+// AppScript to import data from Firestore into Google Sheets
+// ==========================================================
+//      CONFIGURATION - Only change these values
+// ==========================================================
 var FIREBASE_PROJECT_ID = 'testing-registration-admin2'; // Use your actual Project ID
-var FIRESTORE_COLLECTION = 'CareerLinkParticipants'; // Update this for each collection as required
+var FIRESTORE_COLLECTION = 'CareerLinkParticipants';     // UPDATE THIS FOR EACH EVENT
 var SHEET_NAME = 'Sheet1';
 
-// Create UI menu when spreadsheet opens
+// ==========================================================
+//      CORE SCRIPT - Do not change below this line
+// ==========================================================
+
+// Create a custom menu when the spreadsheet is opened
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('Firebase Importer')
-    .addItem('Import Registrations', 'importTeamDataFromFirestore')
+    .addItem('Import Registrations', 'importRegistrationsFromFirestore')
     .addToUi();
 }
 
-function importTeamDataFromFirestore() {
+/**
+ * Main function to import data from the specified Firestore collection.
+ */
+function importRegistrationsFromFirestore() {
   var ui = SpreadsheetApp.getUi();  
   
   try {
@@ -20,43 +29,38 @@ function importTeamDataFromFirestore() {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
     
     if (!sheet) {
-      ui.alert('Sheet "' + SHEET_NAME + '" not found. Please create the sheet first.');
-      return;
+      throw new Error('Sheet "' + SHEET_NAME + '" not found. Please create it first.');
     }
 
     sheet.clear();
 
-    // --- MODIFIED HEADERS START ---
+    // --- Definitive Headers for All Registration Types ---
     var headers = [
-      'Timestamp', 'Category',
-      // Participant / Faculty
-      'Name', 'Email', 'Phone', 'IEEE Member', 'IEEE ID',
-      // Student Fields
-      'College', 'Roll No', 'Year', 'Branch', 'Section',
-      // Faculty Field
-      'Department',
-      // Payment Fields
-      'Transaction ID', 'Screenshot URL', 'Verification Status',
-      // Custom Questions
-      'Custom Q1', 'Custom Q2', 'Custom Q3', 'Custom Q4', 'Custom Q5'
+      'Timestamp', 'Category', 'Is IEEE Member',
+      'Name', 'Email', 'Phone',
+      'College', 'Roll No', 'Year', 'Branch', 'Section', // Student
+      'Department', // Faculty
+      'Transaction ID', 'Membership ID', 
+      'Proof URL (Screenshot/Card)', 'Verification Status'
     ];
-    // --- MODIFIED HEADERS END ---
+
+    // Find all custom question keys from the first few documents
+    var customQuestionHeaders = getCustomQuestionHeaders(firestoreUrl);
+    headers = headers.concat(customQuestionHeaders);
     
     sheet.appendRow(headers);
 
-    // =========== CRITICAL FIX START: Add Authentication ===========
     var options = {
       'method': 'get',
       'headers': {
         'Authorization': 'Bearer ' + ScriptApp.getOAuthToken()
       },
-      'muteHttpExceptions': true // Continue even if there's an error
+      'muteHttpExceptions': true
     };
-    // =========== CRITICAL FIX END ===========
 
     var nextPageToken = '';
     var totalRecords = 0;
-    var rows = []; // Batch rows for faster writing
+    var rows = [];
 
     do {
       var response = UrlFetchApp.fetch(firestoreUrl + '?pageSize=300&pageToken=' + nextPageToken, options);
@@ -64,7 +68,7 @@ function importTeamDataFromFirestore() {
       var responseBody = response.getContentText();
 
       if (responseCode !== 200) {
-        throw new Error("Error fetching data from Firestore: " + responseBody);
+        throw new Error("Error fetching data: " + responseBody);
       }
 
       var jsonData = JSON.parse(responseBody);
@@ -77,31 +81,27 @@ function importTeamDataFromFirestore() {
           var rowData = [
             convertUTCToIST(data.timeStamp ? data.timeStamp.timestampValue : ''),
             category,
-            // Participant / Faculty Data
+            getFieldValue(data, 'isIeeeMember'),
             getFieldValue(data, 'p1_name'),
             getFieldValue(data, 'p1_email'),
             getFieldValue(data, 'p1_phone'),
-            getFieldValue(data, 'p1_ieee_member'),
-            getFieldValue(data, 'p1_ieee_id'),
-            // Student-Specific Data
             category === 'student' ? getFieldValue(data, 'p1_college') : '',
             category === 'student' ? getFieldValue(data, 'p1_roll') : '',
             category === 'student' ? getFieldValue(data, 'p1_year') : '',
             category === 'student' ? getFieldValue(data, 'p1_branch') : '',
             category === 'student' ? getFieldValue(data, 'p1_section') : '',
-            // Faculty-Specific Data
             category === 'faculty' ? getFieldValue(data, 'p1_dept') : '',
-            // Payment Data
             getFieldValue(data, 'transactionId'),
-            getFieldValue(data, 'screenshotURL'),
+            getFieldValue(data, 'membershipId'),
+            getFieldValue(data, 'screenshotURL') || getFieldValue(data, 'membershipCardURL'),
             getFieldValue(data, 'verificationStatus'),
-            // Custom Questions
-            getFieldValue(data, 'custom_q1'),
-            getFieldValue(data, 'custom_q2'),
-            getFieldValue(data, 'custom_q3'),
-            getFieldValue(data, 'custom_q4'),
-            getFieldValue(data, 'custom_q5')
           ];
+
+          // Add custom question answers in the correct order
+          customQuestionHeaders.forEach(function(header) {
+              rowData.push(getFieldValue(data, header.replace(/\s+/g, '_')));
+          });
+
           rows.push(rowData);
           totalRecords++;
         });
@@ -111,12 +111,12 @@ function importTeamDataFromFirestore() {
 
     } while (nextPageToken);
 
-    if(rows.length > 0) {
+    if (rows.length > 0) {
       sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
       sheet.autoResizeColumns(1, headers.length);
     }
     
-    Logger.log('Import Complete: Successfully imported ' + totalRecords + ' records from collection "' + FIRESTORE_COLLECTION + '"');
+    Logger.log('Import Complete: ' + totalRecords + ' records from "' + FIRESTORE_COLLECTION + '"');
     ui.alert('Success!', 'Imported ' + totalRecords + ' records.', ui.ButtonSet.OK);
 
   } catch (error) {
@@ -125,32 +125,57 @@ function importTeamDataFromFirestore() {
   }
 }
 
-function getFieldValue(data, fieldName, type) {
+/**
+ * Helper function to extract a field's value from Firestore's JSON format.
+ */
+function getFieldValue(data, fieldName) {
   if (!data || !data[fieldName]) {
     return '';
   }
   var field = data[fieldName];
   
-  if (type === 'timestamp') {
-    return convertUTCToIST(field.timestampValue || '');
-  }
-  return field.stringValue || field.integerValue || field.doubleValue || field.booleanValue || '';
+  return field.stringValue || field.integerValue || field.doubleValue || (typeof field.booleanValue !== 'undefined' ? field.booleanValue : '') || '';
 }
 
+/**
+ * Helper function to convert a UTC timestamp string to IST format.
+ */
 function convertUTCToIST(utcTimestamp) {
-  if (!utcTimestamp) {
-    return '';
-  }
+  if (!utcTimestamp) return '';
   try {
     var date = new Date(utcTimestamp);
-    var indianTime = Utilities.formatDate(date, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
-    return indianTime;
+    return Utilities.formatDate(date, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
   } catch (error) {
     Logger.log('Error converting timestamp: ' + error.toString());
     return utcTimestamp;
   }
 }
 
-function runImportWithCurrentCollection() {
-  importDataFromFirestore();
+/**
+ * Helper function to dynamically find all custom question headers.
+ */
+function getCustomQuestionHeaders(firestoreUrl) {
+    var options = {
+      'method': 'get',
+      'headers': {
+        'Authorization': 'Bearer ' + ScriptApp.getOAuthToken()
+      },
+      'muteHttpExceptions': true
+    };
+
+    var response = UrlFetchApp.fetch(firestoreUrl + '?pageSize=10', options); // Check first 10 docs
+    var responseBody = response.getContentText();
+    var jsonData = JSON.parse(responseBody);
+    var questionKeys = new Set();
+
+    if (jsonData.documents) {
+        jsonData.documents.forEach(function(doc) {
+            Object.keys(doc.fields).forEach(function(key) {
+                if (key.startsWith('custom_q_')) {
+                    questionKeys.add(key.replace(/_/g, ' '));
+                }
+            });
+        });
+    }
+    return Array.from(questionKeys).sort();
 }
