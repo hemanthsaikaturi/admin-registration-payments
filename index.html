@@ -54,7 +54,43 @@
   </div>
 </footer>
 
+<!-- Info Modal HTML -->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="infoModalLabel">How to Find Your IEEE Membership Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Follow these steps to download your IEEE membership card and find your ID:</p>
+        <ol>
+          <li>Click the link below to go to the IEEE login page:</li>
+          <li>
+             <a href="https://www.ieee.org/profile/membershipandsubscription/printMembershipCard.html" target="_blank">Download IEEE Membership Card</a>
+          </li>
+          <li>Log in using your IEEE account credentials.</li>
+          <img src="Assets/images/ieee-login-guide.png" alt="IEEE Login Screenshot" class="modal-image">
+          <li>Once logged in, you will see an option to download your membership card as a PDF.</li>
+          <li>Your Membership ID is printed directly on the card.</li>
+          <img src="Assets/images/ieee-card-guide.png" alt="IEEE Membership Card Example" class="modal-image">
+          <li>Upload the downloaded PDF or a screenshot of the card in the form.</li>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>

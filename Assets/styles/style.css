@@ -74,7 +74,6 @@ section.about {
     color: #555;
     white-space: pre-wrap;
     text-align: justify;
-    /* Hyphens removed */
 }
 
 /* --- ROLE SELECTION BUTTONS --- */
@@ -222,7 +221,10 @@ select.form-control:valid {
     flex-direction: column;
     align-items: center;
 }
-input[name="paymentScreenshot"] {
+/* --- THIS IS THE FIX --- */
+/* This rule now hides BOTH file inputs correctly */
+input[name="paymentScreenshot"],
+input[name="membershipCard"] {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -369,6 +371,39 @@ input[name="paymentScreenshot"] {
     }
 }
 
+/* --- INFO BUTTON & MODAL STYLING --- */
+.info-button-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+.info-button {
+    background-color: #e9ecef;
+    color: #495057;
+    border: 1px solid #ced4da;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    line-height: 26px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.info-button:hover {
+    background-color: #0C71C3;
+    color: #fff;
+    border-color: #0C71C3;
+}
+.modal-image {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    margin: 15px 0;
+}
+
 /* --- SOCIAL CONNECT SECTION --- */
 .social-connect-container {
     display: flex;
@@ -427,8 +462,8 @@ input[name="paymentScreenshot"] {
 /* --- RESPONSIVE STYLES --- */
 @media (max-width: 576px) {
     .event-description p, .payment-instructions {
-        font-size: small;
-        text-align: justify;
+        font-size: 0.95rem;
+        text-align: left;
     }
     .footer {
         font-size: 13px;

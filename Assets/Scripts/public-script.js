@@ -128,101 +128,128 @@ function generateCustomQuestions(event, participantCategory) {
     return questionsHTML;
 }
 
-// --- FORM GENERATION ---
+// --- FORM GENERATION (FINAL VERSION) ---
 function generateRegistrationForm(event, participantCategory) {
     participantTypeSelector.style.display = 'none';
     regForm.style.display = 'block';
 
     let finalHTML = '';
     
+    // Payment Section HTML
+    let paymentSectionHTML = '';
     if (event.paymentsEnabled && event.qrCodeURL) {
         const fee = participantCategory === 'student' ? (event.studentFee || 0) : (event.facultyFee || 0);
-        
-        // --- THIS IS THE CHANGE: Removed the hard-coded fallback text ---
-        const paymentInstructions = event.paymentInstructions || '';
-        
-        finalHTML += `
-            <div class="participant">
-                <label class="participant-label">Step 1: Complete Your Payment</label>
-                <div class="payment-details-container">
-                    <p class="payment-instructions" style="text-align: left;">${paymentInstructions}</p>
-                    <h5 class="mt-2"><strong>Event Fee: ₹${fee}</strong></h5>
-                    <img src="${event.qrCodeURL}" alt="Payment QR Code" style="max-width: 220px; border-radius: 8px;" class="mb-3">
-                    <div class="row w-100">
-                        <div class="col-md-6">
-                             <div class="floating-label">
-                                <input type="text" class="form-control" id="transactionId" name="transactionId" placeholder=" " required>
-                                <label for="transactionId">UPI Transaction ID</label>
+        paymentSectionHTML = `
+            <div id="payment-section" style="display: none;">
+                <div class="participant">
+                    <label class="participant-label">Step 1: Complete Your Payment</label>
+                    <div class="payment-details-container">
+                        <p class="payment-instructions">${event.paymentInstructions || ''}</p>
+                        <h5 class="mt-2"><strong>Event Fee: ₹${fee}</strong></h5>
+                        <img src="${event.qrCodeURL}" alt="Payment QR Code" style="max-width: 220px; border-radius: 8px;" class="mb-3">
+                        <div class="row w-100">
+                            <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="transactionId" name="transactionId" placeholder=" "><label for="transactionId">UPI Transaction ID</label></div></div>
+                            <div class="col-md-6 mt-3 mt-md-0">
+                                <label for="paymentScreenshot" class="custom-file-upload">Upload payment screenshot <i class="fa fa-camera"></i></label>
+                                <input id="paymentScreenshot" type="file" name="paymentScreenshot" accept="image/*">
+                                <div id="file-chosen" class="file-chosen-text">*No file selected</div>
                             </div>
                         </div>
-                        <div class="col-md-6 mt-3 mt-md-0">
-                             <label for="paymentScreenshot" class="custom-file-upload">
-                                Upload payment screenshot <i class="fa fa-camera"></i>
-                            </label>
-                            <input id="paymentScreenshot" type="file" name="paymentScreenshot" accept="image/*" required>
-                            <div id="file-chosen" class="file-chosen-text">*No file selected</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    const participantLabelText = event.paymentsEnabled ? 'Step 2: Fill Your Details' : 'Registration Details';
-    let participantHTML = `<div class="participant-header"><label class="participant-label">${participantLabelText}</label></div>`;
-    
-    participantHTML += `<input type="hidden" name="participantCategory" value="${participantCategory}">`;
-    if (participantCategory === 'student') {
-        participantHTML += `
-            <div class="participant">
-                <label class="participant-label">Student Details</label>
-                <div class="fields">
-                    <div class="row">
-                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_name" name="p1_name" placeholder=" " required><label for="p1_name">Name</label></div></div>
-                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_college" name="p1_college" placeholder=" " required><label for="p1_college">College Name</label></div></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4"><div class="form-group"><select class="form-control" id="p1_year" name="p1_year" required><option value="" disabled selected>Select Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div></div>
-                        <div class="col-md-4"><div class="form-group"><select class="form-control" id="p1_branch" name="p1_branch" required><option value="" disabled selected>Select Branch</option><option value="CIVIL">CIVIL</option><option value="CSB">CSB</option><option value="CSC">CSC</option><option value="CSD">CSD</option><option value="CSE">CSE</option><option value="CSM">CSM</option><option value="ECE">ECE</option><option value="EEE">EEE</option><option value="IT">IT</option><option value="MECH">MECH</option><option value="OTHERS">OTHERS</option></select></div></div>
-                        <div class="col-md-4"><div class="form-group"><select class="form-control" id="p1_section" name="p1_section" required><option value="" disabled selected>Select Section</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="OTHERS">OTHERS</option></select></div></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4"><div class="floating-label"><input type="text" class="form-control" id="p1_roll" name="p1_roll" required pattern="[a-zA-Z0-9]{10}" maxlength="10" placeholder=" " title="Please enter a 10-character Roll No."><label for="p1_roll">Roll No.</label></div></div>
-                        <div class="col-md-4"><div class="floating-label"><input type="email" class="form-control" id="p1_email" name="p1_email" placeholder=" " required><label for="p1_email">Email</label></div></div>
-                        <div class="col-md-4"><div class="floating-label"><input type="tel" class="form-control" id="p1_phone" name="p1_phone" placeholder=" " required><label for="p1_phone">Phone No.</label></div></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6"><div class="form-group"><select class="form-control" id="p1_ieee_member" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div></div>
-                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_ieee_id" name="p1_ieee_id" placeholder=" "><label for="p1_ieee_id">IEEE Membership ID</label></div></div>
-                    </div>
-                </div>
-             </div>`;
-    } else if (participantCategory === 'faculty') {
-        participantHTML += `
-            <div class="participant">
-                <label class="participant-label">Faculty Details</label>
-                <div class="fields">
-                    <div class="row">
-                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_name" name="p1_name" placeholder=" " required><label for="p1_name">Name</label></div></div>
-                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_dept" name="p1_dept" placeholder=" " required><label for="p1_dept">Department</label></div></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6"><div class="floating-label"><input type="email" class="form-control" id="p1_email" name="p1_email" placeholder=" " required><label for="p1_email">Email</label></div></div>
-                        <div class="col-md-6"><div class="floating-label"><input type="tel" class="form-control" id="p1_phone" name="p1_phone" placeholder=" " required><label for="p1_phone">Phone No.</label></div></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6"><div class="form-group"><select class="form-control" id="p1_ieee_member" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div></div>
-                        <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_ieee_id" name="p1_ieee_id" placeholder=" "><label for="p1_ieee_id">IEEE Membership ID</label></div></div>
                     </div>
                 </div>
             </div>`;
     }
+
+    // IEEE Member Section HTML
+    const ieeeMemberSectionHTML = `
+        <div id="ieee-member-section" style="display: none;">
+            <div class="participant">
+                <label class="participant-label">IEEE Member Details</label>
+                <p>Registration for this event is free for IEEE members. Please provide your membership details for verification.</p>
+                <div class="floating-label">
+                    <input type="text" class="form-control" id="membershipId" name="membershipId" placeholder=" ">
+                    <label for="membershipId">IEEE Membership ID</label>
+                </div>
+                <div>
+                    <label for="membershipCard" class="custom-file-upload">Upload IEEE Membership Card <i class="fa fa-id-card"></i></label>
+                    <input id="membershipCard" type="file" name="membershipCard" accept="image/*,.pdf">
+                    <div id="card-chosen" class="file-chosen-text">*No file selected</div>
+                </div>
+            </div>
+        </div>`;
+
+    finalHTML += paymentSectionHTML + ieeeMemberSectionHTML;
+
+    const participantLabelText = 'Enter Your Details';
+    let participantHTML = `<div class="participant-header"><label class="participant-label">${participantLabelText}</label></div>`;
+    
+    participantHTML += `<input type="hidden" name="participantCategory" value="${participantCategory}">`;
+    
+    const isStudent = participantCategory === 'student';
+
+    participantHTML += `
+        <div class="participant">
+            <label class="participant-label">${isStudent ? 'Student' : 'Faculty'} Details</label>
+            <div class="fields">
+                <div class="row">
+                    <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="p1_name" name="p1_name" placeholder=" " required><label for="p1_name">Name</label></div></div>
+                    <div class="col-md-6"><div class="floating-label"><input type="text" class="form-control" id="${isStudent ? 'p1_college' : 'p1_dept'}" name="${isStudent ? 'p1_college' : 'p1_dept'}" placeholder=" " required><label for="${isStudent ? 'p1_college' : 'p1_dept'}">${isStudent ? 'College Name' : 'Department'}</label></div></div>
+                </div>`;
+    if (isStudent) {
+        participantHTML += `
+                <div class="row">
+                    <div class="col-md-4"><div class="form-group"><select class="form-control" id="p1_year" name="p1_year" required><option value="" disabled selected>Select Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div></div>
+                    <div class="col-md-4"><div class="form-group"><select class="form-control" id="p1_branch" name="p1_branch" required><option value="" disabled selected>Select Branch</option><option value="CIVIL">CIVIL</option><option value="CSB">CSB</option><option value="CSC">CSC</option><option value="CSD">CSD</option><option value="CSE">CSE</option><option value="CSM">CSM</option><option value="ECE">ECE</option><option value="EEE">EEE</option><option value="IT">IT</option><option value="MECH">MECH</option><option value="OTHERS">OTHERS</option></select></div></div>
+                    <div class="col-md-4"><div class="form-group"><select class="form-control" id="p1_section" name="p1_section" required><option value="" disabled selected>Select Section</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="OTHERS">OTHERS</option></select></div></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12"><div class="floating-label"><input type="text" class="form-control" id="p1_roll" name="p1_roll" required pattern="[a-zA-Z0-9]{10}" maxlength="10" placeholder=" " title="Please enter a 10-character Roll No."><label for="p1_roll">Roll No.</label></div></div>
+                </div>`;
+    }
+    participantHTML += `
+                <div class="row">
+                    <div class="col-md-6"><div class="floating-label"><input type="email" class="form-control" id="p1_email" name="p1_email" placeholder=" " required><label for="p1_email">Email</label></div></div>
+                    <div class="col-md-6"><div class="floating-label"><input type="tel" class="form-control" id="p1_phone" name="p1_phone" placeholder=" " required><label for="p1_phone">Phone No.</label></div></div>
+                </div>
+                <div class="info-button-wrapper">
+                    <div class="form-group flex-grow-1 mb-0"><select class="form-control" id="p1_ieee_member" name="p1_ieee_member" required><option value="" disabled selected>Are you an IEEE Member?</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                    <button type="button" class="info-button" data-toggle="modal" data-target="#infoModal">i</button>
+                </div>
+            </div>
+        </div>`;
     
     finalHTML += participantHTML;
+    
+    // --- THIS IS THE FIX ---
+    // The call to generate custom questions has been restored.
     finalHTML += generateCustomQuestions(event, participantCategory);
     
     if (regFormContainer) {
         regFormContainer.innerHTML = finalHTML;
+        
+        const ieeeMemberSelect = document.getElementById('p1_ieee_member');
+        const paymentSection = document.getElementById('payment-section');
+        const ieeeMemberSection = document.getElementById('ieee-member-section');
+
+        if (ieeeMemberSelect) {
+            ieeeMemberSelect.addEventListener('change', (e) => {
+                const isMember = e.target.value === 'Yes';
+                if (paymentSection) paymentSection.style.display = isMember ? 'none' : 'block';
+                if (ieeeMemberSection) ieeeMemberSection.style.display = isMember ? 'block' : 'none';
+
+                document.getElementById('transactionId').required = !isMember;
+                document.getElementById('paymentScreenshot').required = !isMember;
+                document.getElementById('membershipId').required = isMember;
+                document.getElementById('membershipCard').required = isMember;
+            });
+        }
+
+        document.getElementById('paymentScreenshot')?.addEventListener('change', e => {
+            document.getElementById('file-chosen').textContent = e.target.files.length > 0 ? e.target.files[0].name : '*No file selected';
+        });
+        document.getElementById('membershipCard')?.addEventListener('change', e => {
+            document.getElementById('card-chosen').textContent = e.target.files.length > 0 ? e.target.files[0].name : '*No file selected';
+        });
 
         setTimeout(() => {
             regForm.classList.add('is-visible');
@@ -230,20 +257,9 @@ function generateRegistrationForm(event, participantCategory) {
     }
 }
 
+
 // --- FORM SUBMISSION ---
 if (regForm) {
-    regForm.addEventListener('change', (e) => {
-        if (e.target.matches('input[name="paymentScreenshot"]')) {
-            const fileInput = e.target;
-            const fileChosenDisplay = document.getElementById('file-chosen');
-            if (fileInput.files.length > 0) {
-                fileChosenDisplay.textContent = fileInput.files[0].name;
-            } else {
-                fileChosenDisplay.textContent = '*No file selected';
-            }
-        }
-    });
-
     regForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const submitButton = document.getElementById("submit-button");
@@ -262,72 +278,62 @@ if (regForm) {
             const formData = new FormData(regForm);
             const registrationData = {};
             for (const [key, value] of formData.entries()) {
-                if (key !== "paymentScreenshot") {
+                if (!['paymentScreenshot', 'membershipCard'].includes(key)) {
                     registrationData[key] = value;
                 }
             }
 
             registrationData.timeStamp = firebase.firestore.FieldValue.serverTimestamp();
-            registrationData.participantCount = 1;
+            const isMember = formData.get('p1_ieee_member') === 'Yes';
 
-            if (eventData.paymentsEnabled) {
+            if (isMember) {
+                const cardFile = formData.get("membershipCard");
+                if (!cardFile || cardFile.size === 0) throw new Error("IEEE Membership Card is required.");
+                
+                const memberId = formData.get("membershipId");
+                registrationData.membershipId = memberId;
+                registrationData.verificationStatus = "pending";
+                registrationData.isIeeeMember = true;
+
+                const cardRef = storage.ref(`membership_cards/${Date.now()}_${cardFile.name}`);
+                const uploadTask = await cardRef.put(cardFile);
+                registrationData.membershipCardURL = await uploadTask.ref.getDownloadURL();
+            } else if (eventData.paymentsEnabled) {
                 const screenshotFile = formData.get("paymentScreenshot");
-                if (!screenshotFile || screenshotFile.size === 0)
-                    throw new Error("Payment screenshot is required.");
+                if (!screenshotFile || screenshotFile.size === 0) throw new Error("Payment screenshot is required.");
+                
+                const transactionId = formData.get("transactionId");
+                registrationData.transactionId = transactionId;
+                registrationData.verificationStatus = "pending";
+                registrationData.isIeeeMember = false;
 
                 const screenshotRef = storage.ref(`screenshots/${Date.now()}_${screenshotFile.name}`);
                 const uploadTask = await screenshotRef.put(screenshotFile);
                 registrationData.screenshotURL = await uploadTask.ref.getDownloadURL();
-                registrationData.verificationStatus = "pending";
             } else {
                 registrationData.verificationStatus = "not-required";
+                registrationData.isIeeeMember = false;
             }
-
+            
             const collectionSuffix = "Participants";
             const collectionName = `${eventData.eventName.replace(/\s+/g, "")}${collectionSuffix}`;
-            const mailCollectionName = `${eventData.eventName.replace(/\s+/g, "")}Mails`;
-
             await db.collection(collectionName).add(registrationData);
 
-            const emails = [registrationData.p1_email];
-            let names = [registrationData.p1_name];
-
+            const mailCollectionName = `${eventData.eventName.replace(/\s+/g, "")}Mails`;
             const mailSubject = `Registration Received for ${eventData.eventName} | IEEE - VBIT SB`;
-            let mailBody = eventData.emailTemplate
-                .replace(/{name}/g, names.join(" & "))
-                .replace(/{eventName}/g, eventData.eventName);
-            await db.collection(mailCollectionName).add({
-                to: emails,
-                message: {
-                    subject: mailSubject,
-                    html: mailBody,
-                },
-            });
+            let mailBody = eventData.emailTemplate.replace(/{name}/g, registrationData.p1_name).replace(/{eventName}/g, eventData.eventName);
+            await db.collection(mailCollectionName).add({ to: [registrationData.p1_email], message: { subject: mailSubject, html: mailBody } });
 
-            const successTitle = eventData.paymentsEnabled ? "Registration Submitted!" : "Registration Successful!";
-            const successText = eventData.paymentsEnabled
-                ? "Your spot is reserved. You will receive a final confirmation email once your payment is verified by our team."
-                : "Thank you for registering. You will receive a confirmation email shortly.";
-            const successIcon = eventData.paymentsEnabled ? "info" : "success";
+            const successTitle = isMember || eventData.paymentsEnabled ? "Registration Submitted!" : "Registration Successful!";
+            const successText = isMember || eventData.paymentsEnabled ? "Your spot is reserved. You will receive a final confirmation email once your details are verified by our team." : "Thank you for registering. You will receive a confirmation email shortly.";
+            Swal.fire({ title: successTitle, text: successText, icon: 'info', confirmButtonText: "Great!" }).then(() => { window.location.href = "about.html"; });
 
-            Swal.fire({
-                title: successTitle,
-                text: successText,
-                icon: successIcon,
-                confirmButtonText: "Great!",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "about.html";
-                }
-            });
         } catch (error) {
             console.error("Error submitting registration:", error);
-            Swal.fire("Submission Error", "There was an an error submitting your registration. Please try again.", "error");
+            Swal.fire("Submission Error", error.message, "error");
         } finally {
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = "Submit";
-            }
+            submitButton.disabled = false;
+            submitButton.textContent = "Submit";
         }
     });
 }

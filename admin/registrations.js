@@ -18,111 +18,79 @@ async function displayRegistrations(eventId) {
 
   try {
     const eventDoc = await db.collection("events").doc(eventId).get();
-    if (!eventDoc.exists) {
-      throw new Error("Event document not found.");
-    }
+    if (!eventDoc.exists) throw new Error("Event document not found.");
+    
     const eventData = eventDoc.data();
-    const eventName = eventData.eventName;
-    document.getElementById(
-      "event-name-title"
-    ).textContent = `Registrations for: ${eventName}`;
+    document.getElementById("event-name-title").textContent = `Registrations for: ${eventData.eventName}`;
 
-    const collectionSuffix = "Participants";
-    const registrationCollectionName = `${eventName.replace(
-      /\s+/g,
-      ""
-    )}${collectionSuffix}`;
+    const registrationCollectionName = `${eventData.eventName.replace(/\s+/g, "")}Participants`;
 
-    db.collection(registrationCollectionName)
-      .orderBy("timeStamp", "desc")
-      .onSnapshot(
-        (snapshot) => {
-          container.innerHTML = "";
-          headerContainer.innerHTML = "";
-          allRegistrationsData = [];
+    db.collection(registrationCollectionName).orderBy("timeStamp", "desc").onSnapshot((snapshot) => {
+        container.innerHTML = "";
+        headerContainer.innerHTML = "";
+        allRegistrationsData = [];
 
-          if (snapshot.empty) {
+        if (snapshot.empty) {
             loader.innerHTML = "<p>No registrations found for this event.</p>";
             document.getElementById("export-csv-button").disabled = true;
             return;
-          }
+        }
 
-          let headers = [
-            "Timestamp",
-            "Category",
-            "Name",
-            "Email",
-            "Phone",
-            "College/Dept",
-          ];
-          const firstDocData = snapshot.docs[0].data();
-          if (
-            firstDocData.verificationStatus &&
-            firstDocData.verificationStatus !== "not-required"
-          ) {
-            headers.push("Transaction ID", "Screenshot", "Status", "Actions");
-          }
-          headerContainer.innerHTML = `<tr>${headers
-            .map((h) => `<th>${h}</th>`)
-            .join("")}</tr>`;
+        // --- THIS IS THE FIX: Headers are now more generic ---
+        let headers = ["Timestamp", "Category", "Name", "Email", "Phone", "College/Dept", "ID", "Proof", "Status", "Actions"];
+        headerContainer.innerHTML = `<tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr>`;
 
-          snapshot.forEach((doc) => {
+        snapshot.forEach((doc) => {
             const reg = doc.data();
+            // Add docId to data for later reference
+            reg.docId = doc.id;
             allRegistrationsData.push(reg);
-            const regId = doc.id;
-            const date = reg.timeStamp
-              ? reg.timeStamp.toDate().toLocaleString()
-              : "N/A";
-
+            
+            const date = reg.timeStamp ? reg.timeStamp.toDate().toLocaleString() : "N/A";
             const category = reg.participantCategory || "student";
-            const collegeOrDept =
-              category === "student" ? reg.p1_college || "" : reg.p1_dept || "";
+            const collegeOrDept = category === "student" ? reg.p1_college || "" : reg.p1_dept || "";
 
             let rowHTML = `<td>${date}</td>
-                               <td><span class="badge badge-info">${category.toUpperCase()}</span></td>
-                               <td>${reg.p1_name || ""}</td>
-                               <td>${reg.p1_email || ""}</td>
-                               <td>${reg.p1_phone || ""}</td>
-                               <td>${collegeOrDept}</td>`;
-
-            if (
-              reg.verificationStatus &&
-              reg.verificationStatus !== "not-required"
-            ) {
-              const statusBadge =
-                reg.verificationStatus === "verified"
-                  ? `<span class="badge badge-success">Verified</span>`
-                  : `<span class="badge badge-warning">Pending</span>`;
-
-              rowHTML += `
-                        <td>${reg.transactionId || ""}</td>
-                        <td><a href="${
-                          reg.screenshotURL
-                        }" target="_blank" class="btn btn-sm btn-outline-info">View</a></td>
-                        <td>${statusBadge}</td>
-                        <td>
-                            ${
-                              reg.verificationStatus !== "verified"
-                                ? `<button class="btn btn-sm btn-primary verify-btn" data-doc-id="${regId}">Verify</button>`
-                                : "Confirmed"
-                            }
-                        </td>
-                    `;
+                           <td><span class="badge badge-info">${category.toUpperCase()}</span></td>
+                           <td>${reg.p1_name || ""}</td>
+                           <td>${reg.p1_email || ""}</td>
+                           <td>${reg.p1_phone || ""}</td>
+                           <td>${collegeOrDept}</td>`;
+            
+            const statusBadge = reg.verificationStatus === "verified" ? `<span class="badge badge-success">Verified</span>` : `<span class="badge badge-warning">Pending</span>`;
+            
+            // --- THIS IS THE FIX: Logic is now inside the loop, checking each registration ---
+            if (reg.isIeeeMember) {
+                // Display content for IEEE Members
+                rowHTML += `<td>${reg.membershipId || "N/A"}</td>
+                            <td><a href="${reg.membershipCardURL}" target="_blank" class="btn btn-sm btn-outline-info">View Card</a></td>`;
+            } else {
+                // Display content for Paid/Free users
+                rowHTML += `<td>${reg.transactionId || "N/A"}</td>
+                            <td>${reg.screenshotURL ? `<a href="${reg.screenshotURL}" target="_blank" class="btn btn-sm btn-outline-info">View</a>` : "N/A"}</td>`;
             }
-            container.innerHTML += `<tr>${rowHTML}</tr>`;
-          });
 
-          loader.style.display = "none";
-          table.style.display = "table";
-          document.getElementById("export-csv-button").disabled = false;
-          addVerificationListeners(registrationCollectionName, eventData);
-        },
-        (error) => {
-          console.error("Error fetching registrations: ", error);
-          loader.innerHTML =
-            "<p>Error loading registrations. The collection might not exist.</p>";
-        }
-      );
+            rowHTML += `<td>${statusBadge}</td>`;
+
+            if (reg.verificationStatus !== 'not-required') {
+                 rowHTML += `<td>
+                                ${reg.verificationStatus !== "verified" ? `<button class="btn btn-sm btn-primary verify-btn" data-doc-id="${doc.id}">Verify</button>` : "Confirmed"}
+                            </td>`;
+            } else {
+                rowHTML += `<td>N/A</td>`;
+            }
+
+            container.innerHTML += `<tr>${rowHTML}</tr>`;
+        });
+
+        loader.style.display = "none";
+        table.style.display = "table";
+        document.getElementById("export-csv-button").disabled = false;
+        addVerificationListeners(registrationCollectionName, eventData);
+    }, (error) => {
+        console.error("Error fetching registrations: ", error);
+        loader.innerHTML = "<p>Error loading registrations. The collection might not exist.</p>";
+    });
   } catch (error) {
     console.error("Error setting up registration display:", error);
     loader.innerHTML = `<p>Error: ${error.message}</p>`;
@@ -136,9 +104,11 @@ function addVerificationListeners(registrationCollectionName, eventData) {
 
     const button = e.target;
     const docId = button.dataset.docId;
+    const registration = allRegistrationsData.find(reg => reg.docId === docId);
+    const isMember = registration ? registration.isIeeeMember : false;
 
     Swal.fire({
-      title: "Verify Payment?",
+      title: isMember ? "Verify IEEE Member?" : "Verify Payment?",
       text: "This will send the final confirmation email to the participant.",
       icon: "question",
       showCancelButton: true,
@@ -151,53 +121,23 @@ function addVerificationListeners(registrationCollectionName, eventData) {
         button.textContent = "Verifying...";
 
         try {
-          await db
-            .collection(registrationCollectionName)
-            .doc(docId)
-            .update({ verificationStatus: "verified" });
-          const regDoc = await db
-            .collection(registrationCollectionName)
-            .doc(docId)
-            .get();
+          await db.collection(registrationCollectionName).doc(docId).update({ verificationStatus: "verified" });
+          const regDoc = await db.collection(registrationCollectionName).doc(docId).get();
 
           if (regDoc.exists) {
             const regData = regDoc.data();
-            const mailCollectionName = `${eventData.eventName.replace(
-              /\s+/g,
-              ""
-            )}Mails`;
-            const emails = [regData.p1_email];
-            const names = [regData.p1_name];
+            const mailCollectionName = `${eventData.eventName.replace(/\s+/g, "")}Mails`;
             const mailSubject = `Your Registration is Confirmed for ${eventData.eventName}!`;
-            const mailBody = eventData.confirmationEmailTemplate
-              .replace(/{name}/g, names.join(" & "))
-              .replace(/{eventName}/g, eventData.eventName);
+            const mailBody = eventData.confirmationEmailTemplate.replace(/{name}/g, regData.p1_name).replace(/{eventName}/g, eventData.eventName);
 
-            await db.collection(mailCollectionName).add({
-              to: emails,
-              message: {
-                subject: mailSubject,
-                html: mailBody,
-              },
-            });
-
-            Swal.fire(
-              "Verified!",
-              "Verification successful and confirmation email sent!",
-              "success"
-            );
+            await db.collection(mailCollectionName).add({ to: [regData.p1_email], message: { subject: mailSubject, html: mailBody } });
+            Swal.fire("Verified!", "Verification successful and confirmation email sent!", "success");
           } else {
-            throw new Error(
-              "Could not find the registration document after updating."
-            );
+            throw new Error("Could not find the registration document after updating.");
           }
         } catch (error) {
           console.error("Error during verification: ", error);
-          Swal.fire(
-            "Error!",
-            "An error occurred during verification.",
-            "error"
-          );
+          Swal.fire("Error!", "An error occurred during verification.", "error");
           button.disabled = false;
           button.textContent = "Verify";
         }
@@ -220,9 +160,7 @@ function exportToCsv(filename, data) {
     });
     csvRows.push(values.join(","));
   }
-  const blob = new Blob([csvRows.join("\n")], {
-    type: "text/csv;charset=utf-8;",
-  });
+  const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.setAttribute("hidden", "");
@@ -249,18 +187,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const exportButton = document.getElementById("export-csv-button");
         exportButton.addEventListener("click", () => {
-          const eventName = document
-            .getElementById("event-name-title")
-            .textContent.replace("Registrations for: ", "");
-          const filename = `${eventName.replace(
-            /\s+/g,
-            "_"
-          )}_registrations.csv`;
-          exportToCsv(filename, allRegistrationsData);
+          const eventName = document.getElementById("event-name-title").textContent.replace("Registrations for: ", "");
+          const filename = `${eventName.replace(/\s+/g, "_")}_registrations.csv`;
+          exportToCsv(allRegistrationsData);
         });
       } else {
-        document.getElementById("event-name-title").textContent =
-          "Error: No Event ID Provided in URL.";
+        document.getElementById("event-name-title").textContent = "Error: No Event ID Provided in URL.";
       }
     } else {
       window.location.href = "admin-login.html";
