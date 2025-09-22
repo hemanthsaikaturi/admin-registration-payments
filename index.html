@@ -4,22 +4,27 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>IEEE - VBIT SB | Registration</title>
-<link rel="shortcut icon" href="Assets/images/FinalLogo1.png" type="image/x-icon" />
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+<link rel="shortcut icon" href="/Assets/images/FinalLogo1.png" type="image/x-icon" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-<link rel="stylesheet" href="Assets/styles/style.css" />
+<!-- THIS IS THE FIX: Added a version number to bust the cache -->
+<link rel="stylesheet" href="/Assets/styles/style.css?v=1.1" />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Bootstrap JS moved to the head to prevent race conditions -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
 <div id="preloader">
-<img src="Assets/images/FinalLogo1.png" alt="Loading Logo" id="preloader-logo">
+<img src="/Assets/images/FinalLogo1.png" alt="Loading Logo" id="preloader-logo">
 <div class="spinner"></div>
 </div>
 
 <div id="content">
     <header class="container">
-      <img class="logo rounded mx-auto d-block" src="Assets/images/FinalLogo1.png" alt="IEEE - VBIT SB Logo" />
+      <img class="logo rounded mx-auto d-block" src="/Assets/images/FinalLogo1.png" alt="IEEE - VBIT SB Logo" />
     </header>
 
     <div class="container">
@@ -72,10 +77,10 @@
              <a href="https://www.ieee.org/profile/membershipandsubscription/printMembershipCard.html" target="_blank">Download IEEE Membership Card</a>
           </li>
           <li>Log in using your IEEE account credentials.</li>
-          <img src="Assets/images/ieee-login-guide.png" alt="IEEE Login Screenshot" class="modal-image">
+          <img src="/Assets/images/ieee-login-guide.png" alt="IEEE Login Screenshot" class="modal-image">
           <li>Once logged in, you will see an option to download your membership card as a PDF.</li>
           <li>Your Membership ID is printed directly on the card.</li>
-          <img src="Assets/images/ieee-card-guide.png" alt="IEEE Membership Card Example" class="modal-image">
+          <img src="/Assets/images/ieee-card-guide.png" alt="IEEE Membership Card Example" class="modal-image">
           <li>Upload the downloaded PDF or a screenshot of the card in the form.</li>
         </ol>
       </div>
@@ -86,15 +91,11 @@
   </div>
 </div>
 
-
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!-- Firebase and App Scripts -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-<script src="Assets/Scripts/config.js"></script>
-<script src="Assets/Scripts/public-script.js" type="module"></script>
+<script src="/Assets/Scripts/config.js"></script>
+<script src="/Assets/Scripts/public-script.js" type="module"></script>
 </body>
 </html>
