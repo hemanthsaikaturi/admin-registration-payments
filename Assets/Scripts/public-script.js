@@ -166,7 +166,7 @@ function generateRegistrationForm(event, participantCategory) {
             <div class="participant">
                 <label class="participant-label">IEEE Member Verification</label>
                 <div class="floating-label">
-                    <input type="text" class="form-control" id="membershipId" name="membershipId" placeholder=" ">
+                    <input type="tel" class="form-control" id="membershipId" name="membershipId" placeholder=" ">
                     <label for="membershipId">IEEE Membership ID</label>
                 </div>
                 <div>
@@ -177,7 +177,6 @@ function generateRegistrationForm(event, participantCategory) {
             </div>
         </div>`;
 
-    // --- THIS IS THE FIX: Rearranged the HTML structure ---
     const participantLabelText = 'Enter Your Details';
     let participantHTML = `<div class="participant-header"><label class="participant-label">${participantLabelText}</label></div>`;
     
@@ -218,6 +217,7 @@ function generateRegistrationForm(event, participantCategory) {
             </div>
         </div>`;
     
+    
     finalHTML += participantHTML;
     finalHTML += ieeeMemberSectionHTML;
     finalHTML += paymentSectionHTML;
@@ -229,6 +229,14 @@ function generateRegistrationForm(event, participantCategory) {
         const ieeeMemberSelect = document.getElementById('p1_ieee_member');
         const paymentSection = document.getElementById('payment-section');
         const ieeeMemberSection = document.getElementById('ieee-member-section');
+        const membershipIdInput = document.getElementById('membershipId');
+
+        
+        if (membershipIdInput) {
+            membershipIdInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+        }
 
         if (ieeeMemberSelect) {
             ieeeMemberSelect.addEventListener('change', (e) => {
