@@ -187,10 +187,10 @@ select.form-control {
     padding-bottom: 12px !important;
     padding-right: 2.5rem !important; 
 }
-/* --- THIS IS THE FIX --- */
+
 .floating-label textarea.form-control {
-    min-height: 120px; /* Increased height */
-    padding-top: 1.5rem !important; /* Added padding to push text down */
+    min-height: 120px;
+    padding-top: 1.5rem !important;
 }
 select.form-control:focus,
 select.form-control:valid {
