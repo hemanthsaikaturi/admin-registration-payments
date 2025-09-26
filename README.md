@@ -103,25 +103,40 @@ service cloud.firestore {
 ### Firestore Security Rules
 File storage is also secured. These are configured in Firebase Console > Storage > Rules.
 code
-```JavaScript
+
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // Rule for Admin-Uploaded assets
-    match /(event_posters|past_event_posters|qr_codes)/{imageId=**} {
+    // Rule for Event Posters
+    match /event_posters/{imageId=**} {
       allow read: if true;
       allow write: if request.auth != null;
     }
 
-    // Rule for Publicly Uploaded files (Screenshots and Membership Cards)
-    match /(screenshots|membership_cards)/{fileId=**} {
-      // Allow ANYONE to upload a file.
-      allow write: if true;
-      
-      // Allow ANYONE to read the file. This is required for getDownloadURL() to work.
+    // Rule for Past Event Posters
+    match /past_event_posters/{imageId=**} {
       allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Rule for QR Codes
+    match /qr_codes/{imageId=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Rule for Payment Screenshots
+    match /screenshots/{screenshotId=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Rule for IEEE Membership Cards
+    match /membership_cards/{cardId=**} {
+      allow read: if true;
+      allow write: if true;
     }
   }
 }
