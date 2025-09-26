@@ -35,37 +35,39 @@ async function displayRegistrations(eventId) {
             document.getElementById("export-csv-button").disabled = true;
             return;
         }
-
-        // --- THIS IS THE FIX: Headers are now more generic ---
-        let headers = ["Timestamp", "Category", "Name", "Email", "Phone", "College/Dept", "ID", "Proof", "Status", "Actions"];
+        
+        let headers = ["Timestamp", "Category", "Participant(s)", "Contact", "College/Dept", "ID", "Proof", "Status", "Actions"];
         headerContainer.innerHTML = `<tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr>`;
 
         snapshot.forEach((doc) => {
             const reg = doc.data();
-            // Add docId to data for later reference
             reg.docId = doc.id;
             allRegistrationsData.push(reg);
             
             const date = reg.timeStamp ? reg.timeStamp.toDate().toLocaleString() : "N/A";
             const category = reg.participantCategory || "student";
+            
+            let names = [];
+            let contacts = [];
+            for (let i = 1; i <= (reg.participantCount || 1); i++) {
+                if(reg[`p${i}_name`]) names.push(reg[`p${i}_name`]);
+                if(reg[`p${i}_email`]) contacts.push(reg[`p${i}_email`]);
+            }
+
             const collegeOrDept = category === "student" ? reg.p1_college || "" : reg.p1_dept || "";
 
             let rowHTML = `<td>${date}</td>
                            <td><span class="badge badge-info">${category.toUpperCase()}</span></td>
-                           <td>${reg.p1_name || ""}</td>
-                           <td>${reg.p1_email || ""}</td>
-                           <td>${reg.p1_phone || ""}</td>
+                           <td>${names.join('<br>')}</td>
+                           <td>${contacts.join('<br>')}</td>
                            <td>${collegeOrDept}</td>`;
             
             const statusBadge = reg.verificationStatus === "verified" ? `<span class="badge badge-success">Verified</span>` : `<span class="badge badge-warning">Pending</span>`;
             
-            // --- THIS IS THE FIX: Logic is now inside the loop, checking each registration ---
             if (reg.isIeeeMember) {
-                // Display content for IEEE Members
                 rowHTML += `<td>${reg.membershipId || "N/A"}</td>
                             <td><a href="${reg.membershipCardURL}" target="_blank" class="btn btn-sm btn-outline-info">View Card</a></td>`;
             } else {
-                // Display content for Paid/Free users
                 rowHTML += `<td>${reg.transactionId || "N/A"}</td>
                             <td>${reg.screenshotURL ? `<a href="${reg.screenshotURL}" target="_blank" class="btn btn-sm btn-outline-info">View</a>` : "N/A"}</td>`;
             }
@@ -105,11 +107,13 @@ function addVerificationListeners(registrationCollectionName, eventData) {
     const button = e.target;
     const docId = button.dataset.docId;
     const registration = allRegistrationsData.find(reg => reg.docId === docId);
-    const isMember = registration ? registration.isIeeeMember : false;
+    if (!registration) return;
+
+    const isMember = registration.isIeeeMember;
 
     Swal.fire({
       title: isMember ? "Verify IEEE Member?" : "Verify Payment?",
-      text: "This will send the final confirmation email to the participant.",
+      text: "This will send the final confirmation email to all participants.",
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -122,19 +126,26 @@ function addVerificationListeners(registrationCollectionName, eventData) {
 
         try {
           await db.collection(registrationCollectionName).doc(docId).update({ verificationStatus: "verified" });
-          const regDoc = await db.collection(registrationCollectionName).doc(docId).get();
+          
+          const regData = registration;
+          let allEmails = [];
+          let allNames = [];
+          for(let i=1; i<= (regData.participantCount || 1); i++){
+              if(regData[`p${i}_email`]) allEmails.push(regData[`p${i}_email`]);
+              if(regData[`p${i}_name`]) allNames.push(regData[`p${i}_name`]);
+          }
 
-          if (regDoc.exists) {
-            const regData = regDoc.data();
-            const mailCollectionName = `${eventData.eventName.replace(/\s+/g, "")}Mails`;
-            const mailSubject = `Your Registration is Confirmed for ${eventData.eventName}!`;
-            const mailBody = eventData.confirmationEmailTemplate.replace(/{name}/g, regData.p1_name).replace(/{eventName}/g, eventData.eventName);
+          const mailCollectionName = `${eventData.eventName.replace(/\s+/g, "")}Mails`;
+          const mailSubject = `Your Registration is Confirmed for ${eventData.eventName}!`;
+          const mailBody = eventData.confirmationEmailTemplate.replace(/{name}/g, allNames.join(" & ")).replace(/{eventName}/g, eventData.eventName);
 
-            await db.collection(mailCollectionName).add({ to: [regData.p1_email], message: { subject: mailSubject, html: mailBody } });
+          if (allEmails.length > 0) {
+            await db.collection(mailCollectionName).add({ to: allEmails, message: { subject: mailSubject, html: mailBody } });
             Swal.fire("Verified!", "Verification successful and confirmation email sent!", "success");
           } else {
-            throw new Error("Could not find the registration document after updating.");
+            throw new Error("No participant emails found to send confirmation.");
           }
+          
         } catch (error) {
           console.error("Error during verification: ", error);
           Swal.fire("Error!", "An error occurred during verification.", "error");
@@ -147,28 +158,48 @@ function addVerificationListeners(registrationCollectionName, eventData) {
 }
 
 function exportToCsv(filename, data) {
-  if (data.length === 0) return;
-  const allHeaders = new Set();
-  data.forEach((row) => Object.keys(row).forEach((key) => allHeaders.add(key)));
-  const headers = Array.from(allHeaders);
-  const csvRows = [headers.join(",")];
-  for (const row of data) {
-    const values = headers.map((header) => {
-      const value = row[header] === undefined ? "" : row[header];
-      const escaped = ("" + value).replace(/"/g, '""');
-      return `"${escaped}"`;
+  if (!data || data.length === 0) {
+        alert("No data to export.");
+        return;
+    }
+    const processedData = JSON.parse(JSON.stringify(data));
+    processedData.forEach(row => {
+        if (row.timeStamp && typeof row.timeStamp === 'object') {
+            const seconds = row.timeStamp.seconds || (row.timeStamp._seconds);
+            if (seconds) {
+                row.timeStamp = new Date(seconds * 1000).toLocaleString();
+            }
+        }
     });
-    csvRows.push(values.join(","));
-  }
-  const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.setAttribute("hidden", "");
-  a.setAttribute("href", url);
-  a.setAttribute("download", filename);
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+    const allHeaders = new Set();
+    processedData.forEach(row => Object.keys(row).forEach(key => allHeaders.add(key)));
+    const headers = Array.from(allHeaders);
+    const csvRows = [headers.join(",")];
+    for (const row of processedData) {
+        const values = headers.map(header => {
+            const rawValue = row[header];
+            let value;
+            if (rawValue === null || rawValue === undefined) {
+                value = '';
+            } else if (typeof rawValue === 'object') {
+                value = JSON.stringify(rawValue);
+            } else {
+                value = rawValue;
+            }
+            const escaped = ('' + value).replace(/"/g, '""');
+            return `"${escaped}"`;
+        });
+        csvRows.push(values.join(","));
+    }
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.setAttribute("hidden", "");
+    a.setAttribute("href", url);
+    a.setAttribute("download", filename);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -189,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
         exportButton.addEventListener("click", () => {
           const eventName = document.getElementById("event-name-title").textContent.replace("Registrations for: ", "");
           const filename = `${eventName.replace(/\s+/g, "_")}_registrations.csv`;
-          exportToCsv(allRegistrationsData);
+          exportToCsv(filename, allRegistrationsData);
         });
       } else {
         document.getElementById("event-name-title").textContent = "Error: No Event ID Provided in URL.";

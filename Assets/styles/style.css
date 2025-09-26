@@ -115,7 +115,7 @@ section.about {
 }
 
 
-/* --- DYNAMIC REGISTRATION FORM STYLING (HYBRID DESIGN) --- */
+/* --- DYNAMIC REGISTRATION FORM STYLING --- */
 #registration-section {
     margin-top: -20px; 
 }
@@ -187,7 +187,6 @@ select.form-control {
     padding-bottom: 12px !important;
     padding-right: 2.5rem !important; 
 }
-
 .floating-label textarea.form-control {
     min-height: 120px;
     padding-top: 1.5rem !important;
@@ -227,41 +226,48 @@ select.form-control:valid {
     color: #888;
 }
 
-/* --- CUSTOM FILE UPLOAD & UPI BUTTON --- */
-.payment-details-container {
+/* --- FILE DROP AREA --- */
+.file-drop-area {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-input[name="paymentScreenshot"],
-input[name="membershipCard"] {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-.custom-file-upload {
-    background-color: #00629b;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
-    display: inline-block;
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: 500;
-    transition: background-color 0.2s ease-in-out;
+    justify-content: center;
     width: 100%;
-    text-align: center;
+    padding: 25px;
+    border: 2px dashed #0C71C3;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #f9f9f9;
 }
-.custom-file-upload:hover {
-    background-color: #005082;
-    color: white;
-    text-decoration: none;
+.file-drop-area:hover,
+.file-drop-area.dragover {
+    background-color: #e6f0ff;
+    border-color: #0a589a;
+}
+.file-drop-area input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.file-drop-area-icon {
+    font-size: 2.5rem;
+    color: #0C71C3;
+    margin-bottom: 10px;
+}
+.file-drop-area-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #555;
+}
+.file-drop-area-browse {
+    color: #0C71C3;
+    font-weight: 600;
 }
 .file-chosen-text {
     margin-top: 8px;
@@ -269,42 +275,6 @@ input[name="membershipCard"] {
     color: #005082;
     font-weight: 500;
     font-size: 0.9rem;
-}
-.upi-pay-button {
-    display: inline-flex; 
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    font-family: inherit;
-    background-color: #28a745;
-    border-color: #28a745;
-    color: white !important;
-    padding: 8px 20px;
-    border-radius: 10px;
-    text-decoration: none;
-    margin-bottom: 1rem; 
-}
-.upi-pay-button:hover {
-    color: white !important;
-    background-color: #218838;
-    text-decoration: none;
-}
-.upi-button-text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 1.3;
-}
-.upi-button-text .line-1 {
-    font-size: 0.9em;
-    font-weight: 500;
-}
-.upi-button-text .line-2 {
-    font-size: 1.2em;
-    font-weight: 600;
-}
-.upi-pay-button img {
-    height: 42px; 
 }
 
 /* --- FOOTER STYLING --- */

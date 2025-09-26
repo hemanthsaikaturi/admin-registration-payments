@@ -207,7 +207,7 @@ async function populateFormForEdit(eventId) {
         enablePaymentsCheckbox.checked = event.paymentsEnabled || false;
         enablePaymentsCheckbox.dispatchEvent(new Event('change'));
         if (event.paymentsEnabled) {
-            document.getElementById('isFreeForIeeeMembers').checked = event.isFreeForIeeeMembers !== false; // Default to true if undefined
+            document.getElementById('isFreeForIeeeMembers').checked = event.isFreeForIeeeMembers !== false;
             document.getElementById('studentFee').value = event.studentFee || '';
             document.getElementById('facultyFee').value = event.facultyFee || '';
             document.getElementById('paymentInstructions').value = event.paymentInstructions || '';
