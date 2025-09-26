@@ -99,12 +99,12 @@ service cloud.firestore {
   }
 }
 
----
-```
+
 ### Firestore Security Rules
- File storage is also secured. These are configured in Firebase Console > Storage > Rules.
+File storage is also secured. These are configured in Firebase Console > Storage > Rules.
 code
 
+```javascript
 rules_version = '2';
 
 service firebase.storage {
