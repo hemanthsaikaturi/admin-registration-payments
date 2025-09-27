@@ -126,20 +126,33 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Rule for Events & Past Events collections
-    match /(events|pastEvents)/{eventId} {
+    // Rule for the 'events' collection
+    match /events/{eventId} {
+      allow read: if true;
+      allow write, delete: if request.auth != null;
+    }
+
+    // Rule for the 'pastEvents' collection
+    match /pastEvents/{eventId} {
       allow read: if true;
       allow write, delete: if request.auth != null;
     }
     
     // Rule for ALL OTHER collections (Registrations, Mail Queue, etc.)
+    // This is a "catch-all" for any other collection name.
     match /{collection}/{docId} {
+      // Allow anyone to CREATE a document (i.e., register).
       allow create: if true;
+      
+      // Allow a logged-in ADMIN to READ and UPDATE documents.
       allow read, update: if request.auth != null;
+      
+      // Block deletion for safety.
       allow delete: if false;
     }
   }
 }
+
 ```
 
 ### Storage Security Rules
@@ -152,16 +165,28 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // Rule for admin-uploaded assets
-    match /(event_posters|past_event_posters|qr_codes)/{imageId=**} {
+    // Rule for Event Posters (Admin Upload)
+    match /event_posters/{imageId=**} {
       allow read: if true;
       allow write: if request.auth != null;
     }
 
-    // Rule for user-uploaded screenshots (deprecated but kept for reference)
+    // Rule for Past Event Posters (Admin Upload)
+    match /past_event_posters/{imageId=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Rule for QR Codes (Admin Upload)
+    match /qr_codes/{imageId=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Rule for Payment Screenshots
     match /screenshots/{screenshotId=**} {
-      allow write: if true;
-      allow read: if request.auth != null;
+      // Allow ANY user to WRITE (upload) a screenshot.
+      allow write, read: if true;
     }
   }
 }
