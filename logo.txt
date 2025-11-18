@@ -1,10 +1,12 @@
 Replace the logos at the appropriate src locations!
 
+
 Logos Links:
 
-IEEE - VBIT SB: https://ieeevbitsb.in/logo/IEEE-VBIT-SB/SB-Blue.png
-Computer Society: https://ieeevbitsb.in/logo/Society/CS-Orange.png
-Communication Society: https://ieeevbitsb.in/logo/Society/ComSoc.png
-Power And Energy Society: https://ieeevbitsb.in/logo/Society/Pes.png
-Women in Engneering - Affinity Group: https://ieeevbitsb.in/logo/Society/WIE.png
-Resource & Skill Management: https://ieeevbitsb.in/logo/RSM/RSM.png
+IEEE - VBIT SB: https://www.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png
+Computer Society: https://ieeevbitsb.in/logo/cs/cs-orange.png
+Communication Society: https://ieeevbitsb.in/logo/comsoc/comsoc.png
+Power And Energy Society: https://ieeevbitsb.in/logo/pes/pes.png
+Women in Engneering - Affinity Group: https://ieeevbitsb.in/logo/wie/wie.png
+Resource & Skill Management: https://ieeevbitsb.in/logo/rsm/rsm.png
+VBIT: https://ieeevbitsb.in/logo/vbit/vbit-logo.png
