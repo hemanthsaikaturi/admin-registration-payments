@@ -1,12 +1,12 @@
 Replace the logos at the appropriate src locations!
-
+update: moved from main home to registation directory!
 
 Logos Links:
 
-IEEE - VBIT SB: https://www.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png
-Computer Society: https://ieeevbitsb.in/logo/cs/cs-orange.png
-Communication Society: https://ieeevbitsb.in/logo/comsoc/comsoc.png
-Power And Energy Society: https://ieeevbitsb.in/logo/pes/pes.png
-Women in Engneering - Affinity Group: https://ieeevbitsb.in/logo/wie/wie.png
-Resource & Skill Management: https://ieeevbitsb.in/logo/rsm/rsm.png
-VBIT: https://ieeevbitsb.in/logo/vbit/vbit-logo.png
+IEEE - VBIT SB: https://www.registration.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png
+Computer Society: https://registration.ieeevbitsb.in/logo/cs/cs-orange.png
+Communication Society: https://registration.ieeevbitsb.in/logo/comsoc/comsoc.png
+Power And Energy Society: https://registration.ieeevbitsb.in/logo/pes/pes.png
+Women in Engneering - Affinity Group: https://registration.ieeevbitsb.in/logo/wie/wie.png
+Resource & Skill Management: https://registration.ieeevbitsb.in/logo/rsm/rsm.png
+VBIT: https://registration.ieeevbitsb.in/logo/vbit/vbit-logo.png
