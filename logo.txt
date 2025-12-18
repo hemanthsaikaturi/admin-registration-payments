@@ -3,7 +3,7 @@ update: moved from main home to registation directory!
 
 Logos Links:
 
-IEEE - VBIT SB: https://www.registration.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png
+IEEE - VBIT SB: https://registration.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png
 Computer Society: https://registration.ieeevbitsb.in/logo/cs/cs-orange.png
 Communication Society: https://registration.ieeevbitsb.in/logo/comsoc/comsoc.png
 Power And Energy Society: https://registration.ieeevbitsb.in/logo/pes/pes.png
